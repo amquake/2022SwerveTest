@@ -16,7 +16,20 @@ public class SwerveModule {
     // Hardware
     private WPI_TalonFX driveMotor;
     private WPI_TalonFX steerMotor;
-    private WPI_CANCoder steerEncoder;   
+    private WPI_CANCoder steerEncoder;
+
+    // Linear drive feed forward
+    public final SimpleMotorFeedforward driveFF = new SimpleMotorFeedforward(
+        0, // Voltage to break static friction
+        0, // Volts per meter per second
+        0 // Volts per meter per second squared
+    );
+    // Steer feed forward
+    public final SimpleMotorFeedforward steerFF = new SimpleMotorFeedforward(
+        0, // Voltage to break static friction
+        0, // Volts per meter per second
+        0 // Volts per meter per second squared
+    );
 
     public SwerveModule(int driveMotorID, int steerMotorID, int cancoderID, double angleOffset){
         this.driveMotorID = driveMotorID;
