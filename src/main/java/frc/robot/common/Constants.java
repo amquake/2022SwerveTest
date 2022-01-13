@@ -6,6 +6,11 @@ import edu.wpi.first.math.util.Units;
 public final class Constants {
     public static final class Swerve {
 
+        public static final double kTrackWidth = Units.inchesToMeters(23);
+        public static final double kTrackLength = Units.inchesToMeters(23);
+        
+        public static final double kMaxLinearSpeed = Units.feetToMeters(14);
+        public static final double kMaxAngularSpeed = Units.degreesToRadians(360);
         public static final double kWheelDiameter = Units.inchesToMeters(4);
         public static final double kDriveGearRatio = 6.75; // 6.75:1
         public static final double kSteerGearRatio = 12.8; // 12.8:1

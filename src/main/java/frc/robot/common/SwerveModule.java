@@ -1,5 +1,6 @@
 package frc.robot.common;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
 
@@ -8,9 +9,6 @@ import edu.wpi.first.math.util.Units;
 
 public class SwerveModule {
 
-    private final int driveMotorID;
-    private final int steerMotorID;
-    private final int cancoderID;
     private final double angleOffset;
 
     // Hardware
@@ -20,25 +18,32 @@ public class SwerveModule {
 
     // Linear drive feed forward
     public final SimpleMotorFeedforward driveFF = new SimpleMotorFeedforward(
-        0, // Voltage to break static friction
-        0, // Volts per meter per second
-        0 // Volts per meter per second squared
+        Constants.Swerve.kDriveStaticFF, // Voltage to break static friction
+        Constants.Swerve.kDriveVelocityFF, // Volts per meter per second
+        Constants.Swerve.kDriveAccelFF // Volts per meter per second squared
     );
     // Steer feed forward
     public final SimpleMotorFeedforward steerFF = new SimpleMotorFeedforward(
-        0, // Voltage to break static friction
-        0, // Volts per meter per second
-        0 // Volts per meter per second squared
+        Constants.Swerve.kSteerStaticFF, // Voltage to break static friction
+        Constants.Swerve.kSteerVelocityFF, // Volts per meter per second
+        Constants.Swerve.kSteerAccelFF // Volts per meter per second squared
     );
 
-    public SwerveModule(int driveMotorID, int steerMotorID, int cancoderID, double angleOffset){
-        this.driveMotorID = driveMotorID;
-        this.steerMotorID = steerMotorID;
-        this.cancoderID = cancoderID;
-        this.angleOffset = angleOffset;
+    public SwerveModule(Constants.Swerve.Module moduleConstants, CTREConfigs configs){
+        this.angleOffset = moduleConstants.angleOffset;
 
-        driveMotor = new WPI_TalonFX(driveMotorID);
-        steerMotor = new WPI_TalonFX(steerMotorID);
-        steerEncoder = new WPI_CANCoder(cancoderID);
+        driveMotor = new WPI_TalonFX(moduleConstants.driveMotorID);
+        steerMotor = new WPI_TalonFX(moduleConstants.steerMotorID);
+        steerEncoder = new WPI_CANCoder(moduleConstants.cancoderID);
+
+        driveMotor.configFactoryDefault();
+        driveMotor.configAllSettings(configs.swerveDriveConfig);
+        driveMotor.setNeutralMode(NeutralMode.Brake);
+        driveMotor.setSelectedSensorPosition(0);
+
+        steerMotor.configFactoryDefault();
+        steerMotor.configAllSettings(configs.swerveSteerConfig);
+        steerMotor.setNeutralMode(NeutralMode.Brake);
+        steerMotor.setSelectedSensorPosition(0);
     }
 }
