@@ -1,19 +1,38 @@
 package frc.robot.common;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.util.Units;
 
 public final class Constants {
     public static final class Swerve {
 
+        public static final int kPigeonID = 0;
+
+        // Inversions
+        public static final boolean kInvertGyro = false;
+        public static final boolean kInvertDrive = false;
+        public static final boolean kInvertSteer = false;
+        public static final boolean kInvertCancoder = false;
+
+        // Physical properties
         public static final double kTrackWidth = Units.inchesToMeters(23);
         public static final double kTrackLength = Units.inchesToMeters(23);
         
         public static final double kMaxLinearSpeed = Units.feetToMeters(14);
         public static final double kMaxAngularSpeed = Units.degreesToRadians(360);
         public static final double kWheelDiameter = Units.inchesToMeters(4);
+        public static final double kWheelCircumference = kWheelDiameter*Math.PI;
         public static final double kDriveGearRatio = 6.75; // 6.75:1
         public static final double kSteerGearRatio = 12.8; // 12.8:1
+
+        public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
+            new Translation2d(kTrackLength/2, kTrackWidth/2),
+            new Translation2d(kTrackLength/2, -kTrackWidth/2),
+            new Translation2d(-kTrackLength/2, kTrackWidth/2),
+            new Translation2d(-kTrackLength/2, -kTrackWidth/2)
+        );
 
         // Current limits
         public static final int kDriveContinuousCurrentLimit = 40;
@@ -24,6 +43,10 @@ public final class Constants {
         public static final int kSteerPeakCurrentLimit = 40;
         public static final double kSteerPeakCurrentDuration = 0.1;
 
+        // Ramp
+        public static final double kOpenLoopRamp = 0.25;
+
+        // Feedforward
         public static final double kDriveStaticFF = 0; // Voltage to break static friction
         public static final double kDriveVelocityFF = 0; // Volts per meter per second
         public static final double kDriveAccelFF = 0; // Volts per meter per second squared

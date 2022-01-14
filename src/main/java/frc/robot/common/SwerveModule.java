@@ -1,11 +1,16 @@
 package frc.robot.common;
 
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import frc.robot.util.Conversions;
 
 public class SwerveModule {
 
@@ -41,9 +46,35 @@ public class SwerveModule {
         driveMotor.setNeutralMode(NeutralMode.Brake);
         driveMotor.setSelectedSensorPosition(0);
 
+        steerEncoder.configFactoryDefault();
+        steerEncoder.configAllSettings(configs.swerveCancoderConfig);
+
         steerMotor.configFactoryDefault();
         steerMotor.configAllSettings(configs.swerveSteerConfig);
         steerMotor.setNeutralMode(NeutralMode.Brake);
-        steerMotor.setSelectedSensorPosition(0);
+        resetToAbsolute();
+    }
+
+    public Rotation2d getCancoder(){
+        return Rotation2d.fromDegrees(steerEncoder.getAbsolutePosition());
+    }
+
+    public SwerveModuleState getState(){
+        double velocity = Conversions.falconToMPS(driveMotor.getSelectedSensorVelocity(), Constants.Swerve.kWheelCircumference, Constants.Swerve.kDriveGearRatio);
+        Rotation2d angle = Rotation2d.fromDegrees(Conversions.falconToDegrees(steerMotor.getSelectedSensorPosition(), Constants.Swerve.kSteerGearRatio));
+        return new SwerveModuleState(velocity, angle);
+    }
+
+    public void resetToAbsolute(){
+        double absolutePosition = Conversions.degreesToFalcon(getCancoder().getDegrees() - angleOffset, Constants.Swerve.kSteerGearRatio);
+        steerMotor.setSelectedSensorPosition(absolutePosition);
+    }
+
+    public void setDesiredState(SwerveModuleState desiredState){
+        
+        double angle = desiredState.angle.getDegrees();
+        steerMotor.set(ControlMode.Position, Conversions.degreesToFalcon(angleOffset, Constants.Swerve.kSteerGearRatio));
+        double velocity = Conversions.falconToMPS(desiredState.speedMetersPerSecond, Constants.Swerve.kWheelCircumference, Constants.Swerve.kDriveGearRatio);
+        driveMotor.set(ControlMode.Velocity, velocity, DemandType.ArbitraryFeedForward, driveFF.calculate(desiredState.speedMetersPerSecond));
     }
 }

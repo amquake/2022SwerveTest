@@ -29,7 +29,8 @@ public class CTREConfigs {
             Constants.Swerve.kDrivePeakCurrentDuration
         );
 
-        swerveSteerConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
+        swerveSteerConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
+        swerveSteerConfig.feedbackNotContinuous = false;
         swerveSteerConfig.slot0.kP = Constants.Swerve.kSteerKP;
         swerveSteerConfig.slot0.kI = Constants.Swerve.kSteerKI;
         swerveSteerConfig.slot0.kD = Constants.Swerve.kSteerKD;
@@ -40,7 +41,7 @@ public class CTREConfigs {
             Constants.Swerve.kSteerPeakCurrentDuration
         );
 
-        swerveCancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
+        swerveCancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
         swerveCancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
         swerveCancoderConfig.sensorTimeBase = SensorTimeBase.PerSecond;
     }
