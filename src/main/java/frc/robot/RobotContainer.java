@@ -16,6 +16,8 @@ public class RobotContainer {
 
     public RobotContainer(){
         drivetrain = new Drivetrain();
+
+        configureDriverBinds();
     }
 
     public void periodic(){
