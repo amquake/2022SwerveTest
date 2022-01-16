@@ -3,6 +3,7 @@ package frc.robot.common;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
 public final class Constants {
@@ -21,7 +22,7 @@ public final class Constants {
         public static final double kTrackLength = Units.inchesToMeters(23);
         
         public static final double kMaxLinearSpeed = Units.feetToMeters(14);
-        public static final double kMaxAngularSpeed = Units.degreesToRadians(360);
+        public static final double kMaxAngularSpeed = Units.degreesToRadians(720);
         public static final double kWheelDiameter = Units.inchesToMeters(4);
         public static final double kWheelCircumference = kWheelDiameter*Math.PI;
         public static final double kDriveGearRatio = 6.75; // 6.75:1
@@ -42,9 +43,6 @@ public final class Constants {
         public static final int kSteerContinuousCurrentLimit = 25;
         public static final int kSteerPeakCurrentLimit = 40;
         public static final double kSteerPeakCurrentDuration = 0.1;
-
-        // Ramp
-        public static final double kOpenLoopRamp = 0.25;
 
         // Feedforward
         public static final double kDriveStaticFF = 0; // Voltage to break static friction
@@ -81,5 +79,21 @@ public final class Constants {
                 this.angleOffset = angleOffset;
             }
         }
+    }
+
+    public static final class Auto {
+        public static final double kMaxLinearSpeed = Units.feetToMeters(8);
+        public static final double kMaxLinearAcceleration = Units.feetToMeters(10);
+        public static final double kMaxAngularSpeed = Units.degreesToRadians(540);
+        public static final double kMaxAngularAcceleration = Units.degreesToRadians(540);
+
+        public static final double kPXController = 1; // pose PID control. 1 meter error in x = 1 meter per second x velocity 
+        public static final double kPYController = 1;
+        public static final double kPThetaController = 1;
+        // constraints for the theta controller on velocity (omega) and acceleration (omega squared)
+        public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
+            kMaxAngularSpeed,
+            kMaxAngularAcceleration
+        );
     }
 }

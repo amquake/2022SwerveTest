@@ -1,7 +1,8 @@
 package frc.robot.util;
 
 public final class Conversions {
-    // Credit team 364
+    // Credit to team 364
+
     /**
      * @param counts Falcon Counts
      * @param gearRatio Gear Ratio between Falcon and Mechanism
