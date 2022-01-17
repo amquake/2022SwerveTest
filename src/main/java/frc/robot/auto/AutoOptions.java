@@ -32,9 +32,9 @@ public class AutoOptions {
             new OCSwerveFollower(
                 drivetrain,
                 TrajectoryGenerator.generateTrajectory(
-                    new Pose2d(3, 3, Rotation2d.fromDegrees(-90)),
-                    List.of(new Translation2d(4,3)),
-                    new Pose2d(3, 3, Rotation2d.fromDegrees(-90)),
+                    new Pose2d(0, 0, Rotation2d.fromDegrees(-90)),
+                    List.of(new Translation2d(1,0)),
+                    new Pose2d(0, 0, Rotation2d.fromDegrees(-90)),
                     new TrajectoryConfig(Units.feetToMeters(6), Units.feetToMeters(8))
                 )
             )
