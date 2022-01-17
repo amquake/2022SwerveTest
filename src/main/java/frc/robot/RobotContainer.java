@@ -3,24 +3,38 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import frc.robot.auto.AutoOptions;
 import frc.robot.common.OCXboxController;
 import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
     
-    private Drivetrain drivetrain;
+    private final Drivetrain drivetrain;
 
-    private OCXboxController driver = new OCXboxController(0);
+    private final OCXboxController driver = new OCXboxController(0);
     private boolean isFieldRelative = true;
+
+    private final AutoOptions autoOptions;
 
     public RobotContainer(){
         drivetrain = new Drivetrain();
 
         configureDriverBinds();
+
+        autoOptions = new AutoOptions(drivetrain);
     }
 
     public void periodic(){
+    }
+
+    public Command getAutoCommand(){
+        return autoOptions.getSelected();
+    }
+
+    public void disable(){
+        drivetrain.drive(0, 0, 0, false);
     }
 
     public void setAllBrake(boolean is){
@@ -39,6 +53,11 @@ public class RobotContainer {
         }, drivetrain);
         drivetrain.setDefaultCommand(teleopDrive);
 
+        // change from field-relative to robot-relative control
+        driver.backButton.whenPressed(()->{
+            isFieldRelative = !isFieldRelative;
+        });
+
         // reset the robot heading to 0
         driver.startButton.whenPressed(()->{
             drivetrain.resetOdometry(
@@ -50,7 +69,7 @@ public class RobotContainer {
         });
 
         // lock the modules in a "X" alignment
-        driver.bButton.whileHeld(()->{
+        driver.xButton.whileHeld(()->{
             SwerveModuleState[] states = new SwerveModuleState[]{
                 new SwerveModuleState(0, Rotation2d.fromDegrees(-135)),
                 new SwerveModuleState(0, Rotation2d.fromDegrees(135)),

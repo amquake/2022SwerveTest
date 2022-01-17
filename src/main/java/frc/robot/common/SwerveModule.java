@@ -70,8 +70,9 @@ public class SwerveModule {
     /**
      * Command this swerve module to the desired angle and velocity.
      * Falcon onboard control is used instead of on-RIO control to avoid latency.
+     * @param steerInPlace If modules should steer to target angle when target velocity is 0
      */
-    public void setDesiredState(SwerveModuleState desiredState, boolean spinInPlace){
+    public void setDesiredState(SwerveModuleState desiredState, boolean steerInPlace){
         Rotation2d currentRotation = getIntegratedHeading();
         desiredState = SwerveModuleState.optimize(desiredState, currentRotation);
         
@@ -85,7 +86,7 @@ public class SwerveModule {
         double targetTotalAngle = currentTotalAngle + MathUtil.angleModulus(targetConstrainedAngle - currentConstrainedAngle);
 
         // if the module is not driving, maintain last angle setpoint
-        if(!spinInPlace && Math.abs(desiredState.speedMetersPerSecond) < 0.05){
+        if(!steerInPlace && Math.abs(desiredState.speedMetersPerSecond) < 0.05){
             targetTotalAngle = lastTargetTotalAngle;
         }
         else{
@@ -105,6 +106,9 @@ public class SwerveModule {
 
     public void setDriveBrake(boolean is){
         driveMotor.setNeutralMode(is ? NeutralMode.Brake : NeutralMode.Coast);
+    }
+    public void setSteerBrake(boolean is){
+        steerMotor.setNeutralMode(is ? NeutralMode.Brake : NeutralMode.Coast);
     }
 
     /**

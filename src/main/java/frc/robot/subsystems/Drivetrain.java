@@ -84,17 +84,19 @@ public class Drivetrain extends SubsystemBase {
     /**
      * Command the swerve modules to the desired states.
      * Velocites above maximum speed will be downscaled (preserving ratios between modules)
+     * @param steerInPlace If modules should steer to target angle when target velocity is 0
      */
-    public void setModuleStates(SwerveModuleState[] desiredStates, boolean spinInPlace){
+    public void setModuleStates(SwerveModuleState[] desiredStates, boolean steerInPlace){
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, Constants.Swerve.kMaxLinearSpeed);
         for(int i=0;i<4;i++){
-            swerveMods[i].setDesiredState(desiredStates[i], spinInPlace);
+            swerveMods[i].setDesiredState(desiredStates[i], steerInPlace);
         }
     }
 
     public void setBrakeOn(boolean is){
         for(SwerveModule mod : swerveMods){
             mod.setDriveBrake(is);
+            mod.setSteerBrake(is);
         }
     }
 
@@ -116,7 +118,7 @@ public class Drivetrain extends SubsystemBase {
         gyro.getYawPitchRoll(ypr);
         return Rotation2d.fromDegrees(ypr[0]);
     }
-
+    
     public SwerveModuleState[] getModuleStates(){
         return new SwerveModuleState[]{
             swerveMods[0].getState(),
@@ -125,6 +127,9 @@ public class Drivetrain extends SubsystemBase {
             swerveMods[3].getState()
         };
     }
+    public ChassisSpeeds getChassisSpeeds(){
+        return Constants.Swerve.kinematics.toChassisSpeeds(getModuleStates());
+    }
 
     public HolonomicDriveController getPathController(){
         return pathController;
@@ -132,7 +137,7 @@ public class Drivetrain extends SubsystemBase {
 
     public void log(){
         SmartDashboard.putNumber("Gyro Degrees", getGyroYaw().getDegrees());
-        ChassisSpeeds chassisSpeeds = Constants.Swerve.kinematics.toChassisSpeeds(getModuleStates());
+        ChassisSpeeds chassisSpeeds = getChassisSpeeds();
         SmartDashboard.putNumber("Linear Velocity Feet", Units.metersToFeet(Math.hypot(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond)));
         SmartDashboard.putNumber("Angular Velocity Degrees", Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));
         for(int i=0;i<4;i++){

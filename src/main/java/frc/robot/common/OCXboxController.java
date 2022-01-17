@@ -47,7 +47,6 @@ public class OCXboxController extends XboxController {
     private SlewRateLimiter forwardLimiter = new SlewRateLimiter(7);
     private SlewRateLimiter strafeLimiter = new SlewRateLimiter(7);
     private SlewRateLimiter turnLimiter = new SlewRateLimiter(7);
-    private SlewRateLimiter drivespeedLimiter = new SlewRateLimiter(7);
 
     /**
      * Constructs XboxController on DS joystick port.
@@ -128,7 +127,7 @@ public class OCXboxController extends XboxController {
      * @return Percentage(-1 to 1)
      */
     public double getForward() {
-        return forwardLimiter.calculate(getLeftY() * drivespeedLimiter.calculate(drivespeed));
+        return forwardLimiter.calculate(getLeftY() * drivespeed);
     }
 
     /**
@@ -138,17 +137,17 @@ public class OCXboxController extends XboxController {
      * @return Percentage(-1 to 1)
      */
     public double getStrafe() {
-        return strafeLimiter.calculate(getLeftX() * drivespeedLimiter.calculate(drivespeed));
+        return strafeLimiter.calculate(getLeftX() * drivespeed);
     }
 
     /**
      * Applies deadband math and rate limiting to right X to give 'turn' percentage.
-     * Affected by controller drivespeed (half effective).
+     * Not affected by controller drivespeed.
      * 
      * @return Percentage(-1 to 1)
      */
     public double getTurn() {
-        return turnLimiter.calculate(getRightX() * ((drivespeedLimiter.calculate(drivespeed) + 1) / 2));
+        return turnLimiter.calculate(getRightX() * 0.4);
     }
 
     /**
@@ -156,7 +155,7 @@ public class OCXboxController extends XboxController {
      */
     public void resetLimiters() {
         forwardLimiter.reset(0);
+        strafeLimiter.reset(0);
         turnLimiter.reset(0);
-        drivespeedLimiter.reset(0);
     }
 }
