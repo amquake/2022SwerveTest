@@ -1,7 +1,5 @@
 package frc.robot.auto;
 
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 
 import edu.wpi.first.math.geometry.Pose2d;

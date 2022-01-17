@@ -4,8 +4,13 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
+import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import frc.robot.auto.AutoOptions;
+import frc.robot.commands.FollowCircle;
+import frc.robot.common.Constants;
 import frc.robot.common.OCXboxController;
 import frc.robot.subsystems.Drivetrain;
 
@@ -78,6 +83,14 @@ public class RobotContainer {
             };
             drivetrain.setModuleStates(states, true);
         }, drivetrain);
+
+        // follow a 1.5 meter diameter circle in front of the robot
+        // we use an instant command like this to construct a new command every button press
+        driver.bButton.whenPressed(
+            new InstantCommand(()->{
+                new FollowCircle(drivetrain, 1.5, new Rotation2d(), Constants.Auto.kMediumSpeedConfig).schedule();
+            })
+        );
     }
 
     public void log(){

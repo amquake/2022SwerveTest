@@ -1,8 +1,8 @@
 package frc.robot.common;
 
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 
@@ -82,6 +82,7 @@ public final class Constants {
     }
 
     public static final class Auto {
+        // our maximum speeds/accelerations during auto
         public static final double kMaxLinearSpeed = Units.feetToMeters(8);
         public static final double kMaxLinearAcceleration = Units.feetToMeters(10);
         public static final double kMaxAngularSpeed = Units.degreesToRadians(540);
@@ -95,5 +96,10 @@ public final class Constants {
             kMaxAngularSpeed,
             kMaxAngularAcceleration
         );
+
+        // packaged configs for path following
+        public static final TrajectoryConfig kMaxSpeedConfig = new TrajectoryConfig(kMaxLinearSpeed, kMaxLinearAcceleration);
+        public static final TrajectoryConfig kMediumSpeedConfig = new TrajectoryConfig(0.6*kMaxLinearSpeed, 0.6*kMaxLinearAcceleration);
+        public static final TrajectoryConfig kSlowSpeedConfig = new TrajectoryConfig(0.3*kMaxLinearSpeed, 0.3*kMaxLinearAcceleration);
     }
 }

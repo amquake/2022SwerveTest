@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
-import edu.wpi.first.math.trajectory.Trajectory.State;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.common.Constants;
@@ -39,7 +38,7 @@ public class OCSwerveFollower extends CommandBase {
         // The target state of the trajectory right now (the robot's pose and velocity)
         Trajectory.State targetState = trajectory.sample(currentTime);
 
-        // determine ChassisSpeeds from path state and feedback control from HolonomicDriveController
+        // determine ChassisSpeeds from path state and positional feedback control from HolonomicDriveController
         ChassisSpeeds targetChassisSpeeds = drivetrain.getPathController().calculate(
             drivetrain.getPose(),
             targetState,
