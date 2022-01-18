@@ -8,6 +8,8 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 
+import edu.wpi.first.wpilibj.RobotBase;
+
 /**
  * A class for storing this robot's CTRE motor configurations
  */
@@ -18,14 +20,15 @@ public class CTREConfigs {
     public CANCoderConfiguration swerveCancoderConfig;
 
     public CTREConfigs(){
+        boolean real = RobotBase.isReal();
         swerveDriveConfig = new TalonFXConfiguration();
         swerveSteerConfig = new TalonFXConfiguration();
         swerveCancoderConfig = new CANCoderConfiguration();
 
         swerveDriveConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
-        swerveDriveConfig.slot0.kP = Constants.Swerve.kDriveKP;
-        swerveDriveConfig.slot0.kI = Constants.Swerve.kDriveKI;
-        swerveDriveConfig.slot0.kD = Constants.Swerve.kDriveKD;
+        swerveDriveConfig.slot0.kP = real ? Constants.Swerve.kDriveKP : Constants.Sim.kDriveKP;
+        swerveDriveConfig.slot0.kI = real ? Constants.Swerve.kDriveKI : Constants.Sim.kDriveKI;
+        swerveDriveConfig.slot0.kD = real ? Constants.Swerve.kDriveKD : Constants.Sim.kDriveKD;
         swerveDriveConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(
             true,
             Constants.Swerve.kDriveContinuousCurrentLimit,
@@ -36,9 +39,9 @@ public class CTREConfigs {
         swerveDriveConfig.voltageMeasurementFilter = Constants.Swerve.kVoltageMeasurementSamples;
 
         swerveSteerConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
-        swerveSteerConfig.slot0.kP = Constants.Swerve.kSteerKP;
-        swerveSteerConfig.slot0.kI = Constants.Swerve.kSteerKI;
-        swerveSteerConfig.slot0.kD = Constants.Swerve.kSteerKD;
+        swerveSteerConfig.slot0.kP = real ? Constants.Swerve.kSteerKP : Constants.Sim.kSteerKP;
+        swerveSteerConfig.slot0.kI = real ? Constants.Swerve.kSteerKI : Constants.Sim.kSteerKI;
+        swerveSteerConfig.slot0.kD = real ? Constants.Swerve.kSteerKD : Constants.Sim.kSteerKD;
         swerveSteerConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(
             true,
             Constants.Swerve.kSteerContinuousCurrentLimit,

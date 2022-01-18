@@ -1,5 +1,6 @@
 package frc.robot.common;
 
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -28,10 +29,10 @@ public final class Constants {
         public static final double kSteerGearRatio = 12.8; // 12.8:1
 
         public enum Module {
-            FL(1, 0, 0, 0, 0, kTrackLength/2, kTrackWidth/2), // Front left
-            FR(2, 0, 0, 0, 0, kTrackLength/2, -kTrackWidth/2),
-            BL(3, 0, 0, 0, 0, -kTrackLength/2, kTrackWidth/2),
-            BR(4, 0, 0, 0, 0, -kTrackLength/2, -kTrackWidth/2);
+            FL(1, 0, 1, 0, 0, kTrackLength/2, kTrackWidth/2), // Front left
+            FR(2, 2, 3, 1, 0, kTrackLength/2, -kTrackWidth/2),
+            BL(3, 4, 5, 2, 0, -kTrackLength/2, kTrackWidth/2),
+            BR(4, 6, 7, 3, 0, -kTrackLength/2, -kTrackWidth/2);
 
             public final int moduleNum;
             public final int driveMotorID;
@@ -63,13 +64,19 @@ public final class Constants {
         public static final int kVoltageMeasurementSamples = 32;
 
         // Feedforward
-        public static final double kDriveStaticFF = 0.6; // Voltage to break static friction
-        public static final double kDriveVelocityFF = 2.5; // Volts per meter per second
-        public static final double kDriveAccelFF = 0.3; // Volts per meter per second squared
+        // Linear drive feed forward
+        public static final SimpleMotorFeedforward kDriveFF = new SimpleMotorFeedforward(
+            0.6, // Voltage to break static friction
+            2.5, // Volts per meter per second
+            0.3 // Volts per meter per second squared
+        );
 
-        public static final double kSteerStaticFF = 0; // Voltage to break static friction
-        public static final double kSteerVelocityFF = 0.15; // Volts per meter per second
-        public static final double kSteerAccelFF = 0.04; // Volts per meter per second squared
+        // Steer feed forward
+        public static final SimpleMotorFeedforward kSteerFF = new SimpleMotorFeedforward(
+            0, // Voltage to break static friction
+            0.15, // Volts per radian per second
+            0.04 // Volts per radian per second squared
+        );
 
         // PID
         public static final double kDriveKP = 0.1;
@@ -101,5 +108,31 @@ public final class Constants {
         public static final TrajectoryConfig kMaxSpeedConfig = new TrajectoryConfig(kMaxLinearSpeed, kMaxLinearAcceleration);
         public static final TrajectoryConfig kMediumSpeedConfig = new TrajectoryConfig(0.6*kMaxLinearSpeed, 0.6*kMaxLinearAcceleration);
         public static final TrajectoryConfig kSlowSpeedConfig = new TrajectoryConfig(0.3*kMaxLinearSpeed, 0.3*kMaxLinearAcceleration);
+    }
+
+    public static final class Sim {
+        // Feedforward
+        // Linear drive feed forward
+        public static final SimpleMotorFeedforward kDriveFF = new SimpleMotorFeedforward(
+            0, // Voltage to break static friction
+            2.5, // Volts per meter per second
+            0.3 // Volts per meter per second squared
+        );
+
+        // Steer feed forward
+        public static final SimpleMotorFeedforward kSteerFF = new SimpleMotorFeedforward(
+            0, // Voltage to break static friction
+            0.7, // Volts per radian per second
+            0.1 // Volts per radian per second squared
+        );
+
+        // PID
+        public static final double kDriveKP = 0.1;
+        public static final double kDriveKI = 0;
+        public static final double kDriveKD = 0;
+
+        public static final double kSteerKP = 0.5;
+        public static final double kSteerKI = 0;
+        public static final double kSteerKD = 25;
     }
 }

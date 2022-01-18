@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -31,23 +32,18 @@ public class SwerveModule {
     private final WPI_CANCoder steerEncoder;
 
     // Linear drive feed forward
-    public final SimpleMotorFeedforward driveFF = new SimpleMotorFeedforward(
-        Constants.Swerve.kDriveStaticFF, // Voltage to break static friction
-        Constants.Swerve.kDriveVelocityFF, // Volts per meter per second
-        Constants.Swerve.kDriveAccelFF // Volts per meter per second squared
-    );
+    public final SimpleMotorFeedforward driveFF = Constants.Swerve.kDriveFF;
     // Steer feed forward
-    public final SimpleMotorFeedforward steerFF = new SimpleMotorFeedforward(
-        Constants.Swerve.kSteerStaticFF, // Voltage to break static friction
-        Constants.Swerve.kSteerVelocityFF, // Volts per meter per second
-        Constants.Swerve.kSteerAccelFF // Volts per meter per second squared
-    );
+    public final SimpleMotorFeedforward steerFF = RobotBase.isReal() ? Constants.Swerve.kSteerFF : Constants.Sim.kSteerFF;
 
 
     // Simulation
     private final TalonFXSimCollection driveMotorSim;
     private final FlywheelSim driveMotorSimModel = new FlywheelSim(
-        LinearSystemId.identifyVelocitySystem(driveFF.kv, driveFF.ka),
+        LinearSystemId.identifyVelocitySystem(
+            driveFF.kv * Constants.Swerve.kWheelCircumference / (2*Math.PI),
+            driveFF.ka * Constants.Swerve.kWheelCircumference / (2*Math.PI)
+        ),
         DCMotor.getFalcon500(1),
         Constants.Swerve.kDriveGearRatio
     );
@@ -151,6 +147,7 @@ public class SwerveModule {
         steerMotor.set(ControlMode.Position, angle);
 
         // convert our target meters per second to falcon velocity units
+        SmartDashboard.putNumber("Module "+moduleConstants.moduleNum+" Target Velocity Feet", Units.metersToFeet(desiredState.speedMetersPerSecond));
         double velocity = Conversions.falconToMPS(desiredState.speedMetersPerSecond, Constants.Swerve.kWheelCircumference, Constants.Swerve.kDriveGearRatio);
         // perform onboard PID with inputted feedforward to drive the module to the target velocity
         driveMotor.set(ControlMode.Velocity, velocity, DemandType.ArbitraryFeedForward, driveFF.calculate(desiredState.speedMetersPerSecond));
@@ -203,19 +200,26 @@ public class SwerveModule {
     }
 
     public void simulationPeriodic(){
+        SmartDashboard.putNumber("Drive Sim Model Input", driveMotor.getMotorOutputVoltage());
         driveMotorSimModel.setInputVoltage(driveMotor.getMotorOutputVoltage());
         steerMotorSimModel.setInputVoltage(steerMotor.getMotorOutputVoltage());
         driveMotorSimModel.update(0.02);
         steerMotorSimModel.update(0.02);
 
-        double driveMotorVelocityNative = driveMotorSimModel.getAngularVelocityRadPerSec() / (2 * Math.PI) * 2048 / 10;
+        SmartDashboard.putNumber("Drive Sim Model Amps", driveMotorSimModel.getCurrentDrawAmps());
+        SmartDashboard.putNumber("Drive Sim Model Angular", driveMotorSimModel.getAngularVelocityRadPerSec());
+        SmartDashboard.putNumber("Drive Sim Model Velocity Feet", Units.metersToFeet(driveMotorSimModel.getAngularVelocityRPM() * Constants.Swerve.kWheelCircumference / 60));
+        double driveMotorVelocityNative = driveMotorSimModel.getAngularVelocityRPM() * 2048 / 600 * Constants.Swerve.kDriveGearRatio;
+        double driveMotorPositionDeltaNative = driveMotorVelocityNative*10*0.02;
         driveMotorSim.setIntegratedSensorVelocity((int)driveMotorVelocityNative);
-        driveMotorSim.addIntegratedSensorPosition((int)(driveMotorVelocityNative*0.02));
-        double steerMotorVelocityNative = steerMotorSimModel.getAngularVelocityRadPerSec() / (2 * Math.PI) * 2048 / 10;
+        driveMotorSim.addIntegratedSensorPosition((int)(driveMotorPositionDeltaNative));
+
+        double steerMotorVelocityNative = steerMotorSimModel.getAngularVelocityRPM() * 2048 / 600 * Constants.Swerve.kSteerGearRatio;
+        double steerMotorPositionDeltaNative = steerMotorVelocityNative*10*0.02;
         steerMotorSim.setIntegratedSensorVelocity((int)steerMotorVelocityNative);
-        steerMotorSim.addIntegratedSensorPosition((int)(steerMotorVelocityNative*0.02));
+        steerMotorSim.addIntegratedSensorPosition((int)(steerMotorPositionDeltaNative));
         steerEncoderSim.setVelocity((int)steerMotorVelocityNative);
-        steerEncoderSim.addPosition((int)(steerMotorVelocityNative*0.02));
+        steerEncoderSim.addPosition((int)(steerMotorPositionDeltaNative));
 
         driveMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
         steerMotorSim.setBusVoltage(RobotController.getBatteryVoltage());

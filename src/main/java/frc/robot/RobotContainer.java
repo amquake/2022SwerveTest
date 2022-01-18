@@ -33,9 +33,11 @@ public class RobotContainer {
         autoOptions = new AutoOptions(drivetrain);
 
         SmartDashboard.putData("Field", field2d);
+        autoOptions.submit();
     }
 
     public void periodic(){
+        SmartDashboard.putNumber("Drivespespeds", driver.getDriveSpeed());
     }
 
     public Command getAutoCommand(){
@@ -61,6 +63,9 @@ public class RobotContainer {
                 isFieldRelative);
         }, drivetrain);
         drivetrain.setDefaultCommand(teleopDrive);
+        driver.rightBumper
+            .whenPressed(()->driver.setDriveSpeed(OCXboxController.kSpeedMax))
+            .whenReleased(()->driver.setDriveSpeed(OCXboxController.kSpeedDefault));
 
         // change from field-relative to robot-relative control
         driver.backButton.whenPressed(()->{
@@ -92,7 +97,7 @@ public class RobotContainer {
         // we use an instant command like this to construct a new command every button press
         driver.bButton.whenPressed(
             new InstantCommand(()->{
-                new FollowCircle(drivetrain, 1.5, new Rotation2d(), Constants.Auto.kMediumSpeedConfig).schedule();
+                new FollowCircle(drivetrain, 1.5, new Rotation2d(), Constants.Auto.kSlowSpeedConfig).schedule();
             })
         );
     }
