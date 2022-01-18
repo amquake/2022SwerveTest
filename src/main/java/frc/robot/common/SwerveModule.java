@@ -207,7 +207,6 @@ public class SwerveModule {
         steerMotorSimModel.update(0.02);
 
         SmartDashboard.putNumber("Drive Sim Model Amps", driveMotorSimModel.getCurrentDrawAmps());
-        SmartDashboard.putNumber("Drive Sim Model Angular", driveMotorSimModel.getAngularVelocityRadPerSec());
         SmartDashboard.putNumber("Drive Sim Model Velocity Feet", Units.metersToFeet(driveMotorSimModel.getAngularVelocityRPM() * Constants.Swerve.kWheelCircumference / 60));
         double driveMotorVelocityNative = driveMotorSimModel.getAngularVelocityRPM() * 2048 / 600 * Constants.Swerve.kDriveGearRatio;
         double driveMotorPositionDeltaNative = driveMotorVelocityNative*10*0.02;

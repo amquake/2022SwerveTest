@@ -37,7 +37,6 @@ public class RobotContainer {
     }
 
     public void periodic(){
-        SmartDashboard.putNumber("Drivespespeds", driver.getDriveSpeed());
     }
 
     public Command getAutoCommand(){
