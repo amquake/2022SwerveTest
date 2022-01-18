@@ -3,15 +3,20 @@ package frc.robot.common;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.sensors.CANCoderSimCollection;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.util.Conversions;
 
@@ -38,6 +43,22 @@ public class SwerveModule {
         Constants.Swerve.kSteerAccelFF // Volts per meter per second squared
     );
 
+
+    // Simulation
+    private final TalonFXSimCollection driveMotorSim;
+    private final FlywheelSim driveMotorSimModel = new FlywheelSim(
+        LinearSystemId.identifyVelocitySystem(driveFF.kv, driveFF.ka),
+        DCMotor.getFalcon500(1),
+        Constants.Swerve.kDriveGearRatio
+    );
+    private final TalonFXSimCollection steerMotorSim;
+    private final FlywheelSim steerMotorSimModel = new FlywheelSim(
+        LinearSystemId.identifyVelocitySystem(steerFF.kv, steerFF.ka),
+        DCMotor.getFalcon500(1),
+        Constants.Swerve.kSteerGearRatio
+    );
+    private final CANCoderSimCollection steerEncoderSim;
+
     public SwerveModule(Constants.Swerve.Module moduleConstants, CTREConfigs configs){
         this.moduleConstants = moduleConstants;
 
@@ -48,6 +69,10 @@ public class SwerveModule {
         setupDriveMotor(configs);
         setupCancoder(configs);
         setupSteerMotor(configs);
+
+        driveMotorSim = driveMotor.getSimCollection();
+        steerMotorSim = steerMotor.getSimCollection();
+        steerEncoderSim = steerEncoder.getSimCollection();
     }
 
     private void setupDriveMotor(CTREConfigs configs){
@@ -175,5 +200,25 @@ public class SwerveModule {
         SmartDashboard.putNumber("Module "+num+" Cancoder Degrees", getCancoderHeading().getDegrees());
         SmartDashboard.putNumber("Module "+num+" Steer Degrees", state.angle.getDegrees());
         SmartDashboard.putNumber("Module "+num+" Velocity Feet", Units.metersToFeet(state.speedMetersPerSecond));
+    }
+
+    public void simulationPeriodic(){
+        driveMotorSimModel.setInputVoltage(driveMotor.getMotorOutputVoltage());
+        steerMotorSimModel.setInputVoltage(steerMotor.getMotorOutputVoltage());
+        driveMotorSimModel.update(0.02);
+        steerMotorSimModel.update(0.02);
+
+        double driveMotorVelocityNative = driveMotorSimModel.getAngularVelocityRadPerSec() / (2 * Math.PI) * 2048 / 10;
+        driveMotorSim.setIntegratedSensorVelocity((int)driveMotorVelocityNative);
+        driveMotorSim.addIntegratedSensorPosition((int)(driveMotorVelocityNative*0.02));
+        double steerMotorVelocityNative = steerMotorSimModel.getAngularVelocityRadPerSec() / (2 * Math.PI) * 2048 / 10;
+        steerMotorSim.setIntegratedSensorVelocity((int)steerMotorVelocityNative);
+        steerMotorSim.addIntegratedSensorPosition((int)(steerMotorVelocityNative*0.02));
+        steerEncoderSim.setVelocity((int)steerMotorVelocityNative);
+        steerEncoderSim.addPosition((int)(steerMotorVelocityNative*0.02));
+
+        driveMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
+        steerMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
+        steerEncoderSim.setBusVoltage(RobotController.getBatteryVoltage());
     }
 }

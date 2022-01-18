@@ -4,9 +4,6 @@
 
 package frc.robot.commands;
 
-import java.util.function.DoubleSupplier;
-
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
@@ -16,7 +13,6 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.common.Constants;
 import frc.robot.subsystems.Drivetrain;
 
 public class FollowCircle extends CommandBase {
@@ -80,10 +76,7 @@ public class FollowCircle extends CommandBase {
         );
 
         // command robot to reach the target ChassisSpeeds
-        drivetrain.setModuleStates(
-            Constants.Swerve.kinematics.toSwerveModuleStates(targetChassisSpeeds),
-            false
-        );
+        drivetrain.setChassisSpeeds(targetChassisSpeeds, false);
     }
     
     // Called once the command ends or is interrupted.

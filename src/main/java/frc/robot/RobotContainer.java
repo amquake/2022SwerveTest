@@ -7,9 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
-import edu.wpi.first.wpilibj2.command.ScheduleCommand;
 import frc.robot.auto.AutoOptions;
 import frc.robot.commands.FollowCircle;
 import frc.robot.common.Constants;
@@ -25,7 +23,7 @@ public class RobotContainer {
 
     private final AutoOptions autoOptions;
 
-    private Field2d field = new Field2d();
+    private Field2d field2d = new Field2d();
 
     public RobotContainer(){
         drivetrain = new Drivetrain();
@@ -33,6 +31,8 @@ public class RobotContainer {
         configureDriverBinds();
 
         autoOptions = new AutoOptions(drivetrain);
+
+        SmartDashboard.putData("Field", field2d);
     }
 
     public void periodic(){
@@ -100,7 +100,7 @@ public class RobotContainer {
     public void log(){
         drivetrain.log();
         // display our robot (and individual modules) pose on the field
-        field.setRobotPose(drivetrain.getPose());
-        field.getObject("Swerve Modules").setPoses(drivetrain.getModulePoses());
+        field2d.setRobotPose(drivetrain.getPose());
+        field2d.getObject("Swerve Modules").setPoses(drivetrain.getModulePoses());
     }
 }

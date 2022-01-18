@@ -7,7 +7,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
-import com.ctre.phoenix.sensors.SensorTimeBase;
 
 /**
  * A class for storing this robot's CTRE motor configurations
@@ -51,13 +50,12 @@ public class CTREConfigs {
 
         swerveCancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
         swerveCancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
-        swerveCancoderConfig.sensorTimeBase = SensorTimeBase.PerSecond;
         swerveCancoderConfig.sensorDirection = Constants.Swerve.kInvertCancoder;
     }
 
     public static void configStatusFrames(WPI_TalonFX... motors){
         for(WPI_TalonFX motor : motors){
-            motor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 20, 10);
+            motor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 20, 30);
         }
     }
 }

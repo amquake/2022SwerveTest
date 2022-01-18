@@ -1,7 +1,6 @@
 package frc.robot.common;
 
 import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
@@ -50,13 +49,6 @@ public final class Constants {
             }
         }
 
-        public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-            Module.FL.centerOffset,
-            Module.FR.centerOffset,
-            Module.BL.centerOffset,
-            Module.BR.centerOffset
-        );
-
         // Current limits
         public static final int kDriveContinuousCurrentLimit = 40;
         public static final int kDrivePeakCurrentLimit = 65;
@@ -71,22 +63,22 @@ public final class Constants {
         public static final int kVoltageMeasurementSamples = 32;
 
         // Feedforward
-        public static final double kDriveStaticFF = 0; // Voltage to break static friction
-        public static final double kDriveVelocityFF = 0; // Volts per meter per second
-        public static final double kDriveAccelFF = 0; // Volts per meter per second squared
+        public static final double kDriveStaticFF = 0.6; // Voltage to break static friction
+        public static final double kDriveVelocityFF = 2.5; // Volts per meter per second
+        public static final double kDriveAccelFF = 0.3; // Volts per meter per second squared
 
         public static final double kSteerStaticFF = 0; // Voltage to break static friction
-        public static final double kSteerVelocityFF = 0; // Volts per meter per second
-        public static final double kSteerAccelFF = 0; // Volts per meter per second squared
+        public static final double kSteerVelocityFF = 0.15; // Volts per meter per second
+        public static final double kSteerAccelFF = 0.04; // Volts per meter per second squared
 
         // PID
-        public static final double kDriveKP = 0;
+        public static final double kDriveKP = 0.1;
         public static final double kDriveKI = 0;
         public static final double kDriveKD = 0;
 
-        public static final double kSteerKP = 0;
+        public static final double kSteerKP = 0.6;
         public static final double kSteerKI = 0;
-        public static final double kSteerKD = 0;
+        public static final double kSteerKD = 12;
     }
 
     public static final class Auto {

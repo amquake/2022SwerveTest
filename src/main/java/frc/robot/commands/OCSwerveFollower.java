@@ -8,7 +8,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.common.Constants;
 import frc.robot.subsystems.Drivetrain;
 
 public class OCSwerveFollower extends CommandBase {
@@ -45,10 +44,7 @@ public class OCSwerveFollower extends CommandBase {
             targetState.poseMeters.getRotation()
         );
         // command robot to reach the target ChassisSpeeds
-        drivetrain.setModuleStates(
-            Constants.Swerve.kinematics.toSwerveModuleStates(targetChassisSpeeds),
-            false
-        );
+        drivetrain.setChassisSpeeds(targetChassisSpeeds, false);
     }
     
     // Called once the command ends or is interrupted.

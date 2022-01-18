@@ -1,7 +1,9 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix.sensors.BasePigeonSimCollection;
 import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 
+import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.math.controller.HolonomicDriveController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -13,8 +15,11 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.simulation.ADXRS450_GyroSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.common.CTREConfigs;
 import frc.robot.common.Constants;
 import frc.robot.common.SwerveModule;
@@ -24,6 +29,7 @@ public class Drivetrain extends SubsystemBase {
     private final SwerveModule[] swerveMods;
     private final WPI_PigeonIMU gyro;
 
+    private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
 
      // path controller PID controllers
@@ -35,6 +41,10 @@ public class Drivetrain extends SubsystemBase {
         Constants.Auto.kThetaControllerConstraints
     );
     private final HolonomicDriveController pathController; // Auto path-following controller
+
+    // Simulation
+    private final ADXRS450_Gyro fakeGyro = new ADXRS450_Gyro(); // pigeon sim is broken :(
+    private final ADXRS450_GyroSim gyroSim;
     
     public Drivetrain() {
         CTREConfigs ctreConfigs = new CTREConfigs();
@@ -48,8 +58,15 @@ public class Drivetrain extends SubsystemBase {
         gyro = new WPI_PigeonIMU(Constants.Swerve.kPigeonID);
         gyro.configFactoryDefault(30);
         zeroGyro();
+        gyroSim = new ADXRS450_GyroSim(fakeGyro);
 
-        odometry = new SwerveDriveOdometry(Constants.Swerve.kinematics, getGyroYaw());
+        kinematics = new SwerveDriveKinematics(
+            swerveMods[0].getModuleConstants().centerOffset,
+            swerveMods[1].getModuleConstants().centerOffset,
+            swerveMods[2].getModuleConstants().centerOffset,
+            swerveMods[3].getModuleConstants().centerOffset
+        );
+        odometry = new SwerveDriveOdometry(kinematics, getGyroYaw());
 
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         pathController = new HolonomicDriveController(xController, yController, thetaController);
@@ -82,7 +99,7 @@ public class Drivetrain extends SubsystemBase {
         else{
             targetChassisSpeeds = new ChassisSpeeds(vx,vy,omega);
         }
-        setModuleStates(Constants.Swerve.kinematics.toSwerveModuleStates(targetChassisSpeeds), false);
+        setModuleStates(kinematics.toSwerveModuleStates(targetChassisSpeeds), false);
     }
 
     /**
@@ -96,6 +113,13 @@ public class Drivetrain extends SubsystemBase {
             swerveMods[i].setDesiredState(desiredStates[i], steerInPlace);
         }
     }
+    /**
+     * Uses kinematics to convert ChassisSpeeds to module states.
+     * @see {@link #setModuleStates(SwerveModuleState[], boolean)}
+     */
+    public void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds, boolean steerInPlace){
+        setModuleStates(kinematics.toSwerveModuleStates(targetChassisSpeeds), steerInPlace);
+    }
 
     public void setBrakeOn(boolean is){
         for(SwerveModule mod : swerveMods){
@@ -105,7 +129,12 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void zeroGyro(){
-        gyro.setYaw(0);
+        if(Robot.isReal()){
+            gyro.setYaw(0);
+        }
+        else{
+            fakeGyro.reset();
+        }
     }
     public void resetOdometry(Pose2d pose){
         odometry.resetPosition(pose, getGyroYaw());
@@ -118,9 +147,14 @@ public class Drivetrain extends SubsystemBase {
         return odometry.getPoseMeters().getRotation();
     }
     public Rotation2d getGyroYaw(){
-        double[] ypr = new double[3];
-        gyro.getYawPitchRoll(ypr);
-        return Rotation2d.fromDegrees(ypr[0]);
+        if(Robot.isReal()){
+            double[] ypr = new double[3];
+            gyro.getYawPitchRoll(ypr);
+            return Rotation2d.fromDegrees(ypr[0]);
+        }
+        else{
+            return fakeGyro.getRotation2d();
+        }
     }
     
     /**
@@ -145,8 +179,11 @@ public class Drivetrain extends SubsystemBase {
         }
         return modulePoses;
     }
+    public SwerveDriveKinematics getKinematics(){
+        return kinematics;
+    }
     public ChassisSpeeds getChassisSpeeds(){
-        return Constants.Swerve.kinematics.toChassisSpeeds(getModuleStates());
+        return kinematics.toChassisSpeeds(getModuleStates());
     }
 
     public HolonomicDriveController getPathController(){
@@ -162,6 +199,18 @@ public class Drivetrain extends SubsystemBase {
             SwerveModule module = swerveMods[i];
             module.log();
         }
+    }
 
+    @Override
+    public void simulationPeriodic(){
+        for(int i=0;i<4;i++){
+            SwerveModule module = swerveMods[i];
+            module.simulationPeriodic();
+        }
+
+        double chassisOmega = getChassisSpeeds().omegaRadiansPerSecond;
+        chassisOmega = Math.toDegrees(chassisOmega);
+        gyroSim.setAngle(-getGyroYaw().getDegrees() - chassisOmega * 0.02);
+        gyroSim.setRate(-chassisOmega);
     }
 }

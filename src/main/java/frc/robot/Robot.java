@@ -72,6 +72,13 @@ public class Robot extends TimedRobot {
             container.setAllBrake(false);
         }
     }
+
+    @Override
+    public void simulationInit(){
+    }
+    @Override
+    public void simulationPeriodic(){
+    }
     
     @Override
     public void testInit() {}
