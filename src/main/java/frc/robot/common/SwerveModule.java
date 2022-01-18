@@ -45,18 +45,44 @@ public class SwerveModule {
         steerMotor = new WPI_TalonFX(moduleConstants.steerMotorID);
         steerEncoder = new WPI_CANCoder(moduleConstants.cancoderID);
 
+        setupDriveMotor(configs);
+        setupCancoder(configs);
+        setupSteerMotor(configs);
+    }
+
+    private void setupDriveMotor(CTREConfigs configs){
         driveMotor.configAllSettings(configs.swerveDriveConfig);
+        setupDriveMotor();
+    }
+    private void setupDriveMotor(){
+        driveMotor.enableVoltageCompensation(true);
         driveMotor.setNeutralMode(NeutralMode.Brake);
         driveMotor.setSelectedSensorPosition(0);
         driveMotor.setInverted(Constants.Swerve.kInvertDrive);
-
+    }
+    private void setupCancoder(CTREConfigs configs){
         steerEncoder.configAllSettings(configs.swerveCancoderConfig);
         steerEncoder.configMagnetOffset(moduleConstants.angleOffset, 30);
-
+    }
+    private void setupSteerMotor(CTREConfigs configs){
         steerMotor.configAllSettings(configs.swerveSteerConfig);
+        setupSteerMotor();
+    }
+    private void setupSteerMotor(){
+        steerMotor.enableVoltageCompensation(true);
         steerMotor.setNeutralMode(NeutralMode.Brake);
         steerMotor.setInverted(Constants.Swerve.kInvertSteer);
         resetToAbsolute();
+    }
+
+    public void periodic(){
+        // check if the motors had an oopsie, reapply settings
+        if(driveMotor.hasResetOccurred()){
+            setupDriveMotor();
+        }
+        if(steerMotor.hasResetOccurred()){
+            setupSteerMotor();
+        }
     }
 
     /**

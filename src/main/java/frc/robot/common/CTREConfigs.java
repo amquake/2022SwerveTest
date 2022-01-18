@@ -33,6 +33,8 @@ public class CTREConfigs {
             Constants.Swerve.kDrivePeakCurrentLimit,
             Constants.Swerve.kDrivePeakCurrentDuration
         );
+        swerveDriveConfig.voltageCompSaturation = Constants.Swerve.kVoltageSaturation;
+        swerveDriveConfig.voltageMeasurementFilter = Constants.Swerve.kVoltageMeasurementSamples;
 
         swerveSteerConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
         swerveSteerConfig.slot0.kP = Constants.Swerve.kSteerKP;
@@ -44,6 +46,8 @@ public class CTREConfigs {
             Constants.Swerve.kSteerPeakCurrentLimit,
             Constants.Swerve.kSteerPeakCurrentDuration
         );
+        swerveSteerConfig.voltageCompSaturation = Constants.Swerve.kVoltageSaturation;
+        swerveSteerConfig.voltageMeasurementFilter = Constants.Swerve.kVoltageMeasurementSamples;
 
         swerveCancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
         swerveCancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;

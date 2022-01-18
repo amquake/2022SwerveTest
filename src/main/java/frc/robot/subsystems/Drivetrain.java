@@ -21,20 +21,20 @@ import frc.robot.common.SwerveModule;
 
 public class Drivetrain extends SubsystemBase {
 
-    private SwerveModule[] swerveMods;
-    private WPI_PigeonIMU gyro;
+    private final SwerveModule[] swerveMods;
+    private final WPI_PigeonIMU gyro;
 
-    private SwerveDriveOdometry odometry;
+    private final SwerveDriveOdometry odometry;
 
      // path controller PID controllers
      // i.e 1 meter error in the x direction = 1 meter per second x velocity added
-    private PIDController xController = new PIDController(Constants.Auto.kPXController, 0, 0);
-    private PIDController yController = new PIDController(Constants.Auto.kPYController, 0, 0);
-    private ProfiledPIDController thetaController = new ProfiledPIDController(
+    private final PIDController xController = new PIDController(Constants.Auto.kPXController, 0, 0);
+    private final PIDController yController = new PIDController(Constants.Auto.kPYController, 0, 0);
+    private final ProfiledPIDController thetaController = new ProfiledPIDController(
         Constants.Auto.kPThetaController, 0, 0,
         Constants.Auto.kThetaControllerConstraints
     );
-    private HolonomicDriveController pathController; // Auto path-following controller
+    private final HolonomicDriveController pathController; // Auto path-following controller
     
     public Drivetrain() {
         CTREConfigs ctreConfigs = new CTREConfigs();
@@ -58,6 +58,9 @@ public class Drivetrain extends SubsystemBase {
     @Override
     public void periodic() {
         odometry.update(getGyroYaw(), getModuleStates());
+        for(int i=0;i<4;i++){
+            swerveMods[i].periodic();
+        }
     }
 
     /**

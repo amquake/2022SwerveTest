@@ -66,6 +66,10 @@ public final class Constants {
         public static final int kSteerPeakCurrentLimit = 40;
         public static final double kSteerPeakCurrentDuration = 0.1;
 
+        // Voltage compensation
+        public static final double kVoltageSaturation = 12;
+        public static final int kVoltageMeasurementSamples = 32;
+
         // Feedforward
         public static final double kDriveStaticFF = 0; // Voltage to break static friction
         public static final double kDriveVelocityFF = 0; // Volts per meter per second
