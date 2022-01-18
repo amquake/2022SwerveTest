@@ -9,6 +9,7 @@ import com.ctre.phoenix.sensors.WPI_CANCoder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,13 +17,13 @@ import frc.robot.util.Conversions;
 
 public class SwerveModule {
 
-    private final double angleOffset;
+    private final Constants.Swerve.Module moduleConstants;
     private double lastTargetTotalAngle = 0;
 
     // Hardware
-    private WPI_TalonFX driveMotor;
-    private WPI_TalonFX steerMotor;
-    private WPI_CANCoder steerEncoder;
+    private final WPI_TalonFX driveMotor;
+    private final WPI_TalonFX steerMotor;
+    private final WPI_CANCoder steerEncoder;
 
     // Linear drive feed forward
     public final SimpleMotorFeedforward driveFF = new SimpleMotorFeedforward(
@@ -38,7 +39,7 @@ public class SwerveModule {
     );
 
     public SwerveModule(Constants.Swerve.Module moduleConstants, CTREConfigs configs){
-        this.angleOffset = moduleConstants.angleOffset;
+        this.moduleConstants = moduleConstants;
 
         driveMotor = new WPI_TalonFX(moduleConstants.driveMotorID);
         steerMotor = new WPI_TalonFX(moduleConstants.steerMotorID);
@@ -50,7 +51,7 @@ public class SwerveModule {
         driveMotor.setInverted(Constants.Swerve.kInvertDrive);
 
         steerEncoder.configAllSettings(configs.swerveCancoderConfig);
-        steerEncoder.configMagnetOffset(angleOffset, 30);
+        steerEncoder.configMagnetOffset(moduleConstants.angleOffset, 30);
 
         steerMotor.configAllSettings(configs.swerveSteerConfig);
         steerMotor.setNeutralMode(NeutralMode.Brake);
@@ -135,10 +136,18 @@ public class SwerveModule {
         return new SwerveModuleState(velocity, angle);
     }
 
-    public void log(int moduleNum){
+    /**
+     * @return Constants about this module, like motor IDs, cancoder angle offset, and translation from center
+     */
+    public Constants.Swerve.Module getModuleConstants(){
+        return moduleConstants;
+    }
+
+    public void log(){
         SwerveModuleState state = getState();
-        SmartDashboard.putNumber("Module "+moduleNum+" Cancoder Degrees", getCancoderHeading().getDegrees());
-        SmartDashboard.putNumber("Module "+moduleNum+" Steer Degrees", state.angle.getDegrees());
-        SmartDashboard.putNumber("Module "+moduleNum+" Velocity Feet", Units.metersToFeet(state.speedMetersPerSecond));
+        int num = moduleConstants.moduleNum;
+        SmartDashboard.putNumber("Module "+num+" Cancoder Degrees", getCancoderHeading().getDegrees());
+        SmartDashboard.putNumber("Module "+num+" Steer Degrees", state.angle.getDegrees());
+        SmartDashboard.putNumber("Module "+num+" Velocity Feet", Units.metersToFeet(state.speedMetersPerSecond));
     }
 }

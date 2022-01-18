@@ -28,11 +28,33 @@ public final class Constants {
         public static final double kDriveGearRatio = 6.75; // 6.75:1
         public static final double kSteerGearRatio = 12.8; // 12.8:1
 
+        public enum Module {
+            FL(1, 0, 0, 0, 0, kTrackLength/2, kTrackWidth/2), // Front left
+            FR(2, 0, 0, 0, 0, kTrackLength/2, -kTrackWidth/2),
+            BL(3, 0, 0, 0, 0, -kTrackLength/2, kTrackWidth/2),
+            BR(4, 0, 0, 0, 0, -kTrackLength/2, -kTrackWidth/2);
+
+            public final int moduleNum;
+            public final int driveMotorID;
+            public final int steerMotorID;
+            public final int cancoderID;
+            public final double angleOffset;
+            public final Translation2d centerOffset;
+            private Module(int moduleNum, int driveMotorID, int steerMotorID, int cancoderID, double angleOffset, double xOffset, double yOffset){
+                this.moduleNum = moduleNum;
+                this.driveMotorID = driveMotorID;
+                this.steerMotorID = steerMotorID;
+                this.cancoderID = cancoderID;
+                this.angleOffset = angleOffset;
+                centerOffset = new Translation2d(xOffset, yOffset);
+            }
+        }
+
         public static final SwerveDriveKinematics kinematics = new SwerveDriveKinematics(
-            new Translation2d(kTrackLength/2, kTrackWidth/2),
-            new Translation2d(kTrackLength/2, -kTrackWidth/2),
-            new Translation2d(-kTrackLength/2, kTrackWidth/2),
-            new Translation2d(-kTrackLength/2, -kTrackWidth/2)
+            Module.FL.centerOffset,
+            Module.FR.centerOffset,
+            Module.BL.centerOffset,
+            Module.BR.centerOffset
         );
 
         // Current limits
@@ -61,24 +83,6 @@ public final class Constants {
         public static final double kSteerKP = 0;
         public static final double kSteerKI = 0;
         public static final double kSteerKD = 0;
-
-        public enum Module {
-            FL(0, 0, 0, 0), // Front left
-            FR(0, 0, 0, 0),
-            BL(0, 0, 0, 0),
-            BR(0, 0, 0, 0);
-
-            public final int driveMotorID;
-            public final int steerMotorID;
-            public final int cancoderID;
-            public final double angleOffset;
-            private Module(int driveMotorID, int steerMotorID, int cancoderID, double angleOffset){
-                this.driveMotorID = driveMotorID;
-                this.steerMotorID = steerMotorID;
-                this.cancoderID = cancoderID;
-                this.angleOffset = angleOffset;
-            }
-        }
     }
 
     public static final class Auto {

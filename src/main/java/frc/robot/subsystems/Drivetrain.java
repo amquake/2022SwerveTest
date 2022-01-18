@@ -7,6 +7,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
@@ -119,6 +120,9 @@ public class Drivetrain extends SubsystemBase {
         return Rotation2d.fromDegrees(ypr[0]);
     }
     
+    /**
+     * @return An ordered array filled with module states (rotation, velocity)
+     */
     public SwerveModuleState[] getModuleStates(){
         return new SwerveModuleState[]{
             swerveMods[0].getState(),
@@ -126,6 +130,17 @@ public class Drivetrain extends SubsystemBase {
             swerveMods[2].getState(),
             swerveMods[3].getState()
         };
+    }
+    /**
+     * @return An ordered array filled with the module field poses 
+     */
+    public Pose2d[] getModulePoses(){
+        Pose2d[] modulePoses = new Pose2d[4];
+        for(int i=0;i<4;i++){
+            SwerveModule module = swerveMods[i];
+            modulePoses[i] = getPose().transformBy(new Transform2d(module.getModuleConstants().centerOffset, module.getIntegratedHeading()));
+        }
+        return modulePoses;
     }
     public ChassisSpeeds getChassisSpeeds(){
         return Constants.Swerve.kinematics.toChassisSpeeds(getModuleStates());
@@ -141,7 +156,9 @@ public class Drivetrain extends SubsystemBase {
         SmartDashboard.putNumber("Linear Velocity Feet", Units.metersToFeet(Math.hypot(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond)));
         SmartDashboard.putNumber("Angular Velocity Degrees", Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));
         for(int i=0;i<4;i++){
-            swerveMods[i].log(i);
+            SwerveModule module = swerveMods[i];
+            module.log();
         }
+
     }
 }

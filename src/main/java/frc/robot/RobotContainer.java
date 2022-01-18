@@ -3,6 +3,8 @@ package frc.robot;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.ProxyScheduleCommand;
@@ -22,6 +24,8 @@ public class RobotContainer {
     private boolean isFieldRelative = true;
 
     private final AutoOptions autoOptions;
+
+    private Field2d field = new Field2d();
 
     public RobotContainer(){
         drivetrain = new Drivetrain();
@@ -95,5 +99,8 @@ public class RobotContainer {
 
     public void log(){
         drivetrain.log();
+        // display our robot (and individual modules) pose on the field
+        field.setRobotPose(drivetrain.getPose());
+        field.getObject("Swerve Modules").setPoses(drivetrain.getModulePoses());
     }
 }
