@@ -86,20 +86,18 @@ public final class Constants {
         public static final double kSteerKP = 0.6;
         public static final double kSteerKI = 0;
         public static final double kSteerKD = 12;
-        public static final double kSteerMaxVelocity = 1000;
-        public static final double kSteerMaxAcceleration = 2000;
     }
 
     public static final class Auto {
         // our maximum speeds/accelerations during auto
         public static final double kMaxLinearSpeed = Units.feetToMeters(8);
         public static final double kMaxLinearAcceleration = Units.feetToMeters(10);
-        public static final double kMaxAngularSpeed = Units.degreesToRadians(540);
-        public static final double kMaxAngularAcceleration = Units.degreesToRadians(540);
+        public static final double kMaxAngularSpeed = Units.degreesToRadians(720);
+        public static final double kMaxAngularAcceleration = Units.degreesToRadians(1080);
 
-        public static final double kPXController = 1; // pose PID control. 1 meter error in x = 1 meter per second x velocity 
-        public static final double kPYController = 1;
-        public static final double kPThetaController = 1;
+        public static final double kPXController = 2; // pose PID control. 1 meter error in x = 1 meter per second x velocity 
+        public static final double kPYController = 2;
+        public static final double kPThetaController = 3;
         // constraints for the theta controller on velocity (omega) and acceleration (omega squared)
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
             kMaxAngularSpeed,
@@ -124,8 +122,8 @@ public final class Constants {
         // Steer feed forward
         public static final SimpleMotorFeedforward kSteerFF = new SimpleMotorFeedforward(
             0, // Voltage to break static friction
-            0.7, // Volts per radian per second
-            0.1 // Volts per radian per second squared
+            0.08, // Volts per radian per second
+            0.003 // Volts per radian per second squared
         );
 
         // PID
@@ -133,10 +131,8 @@ public final class Constants {
         public static final double kDriveKI = 0;
         public static final double kDriveKD = 0;
 
-        public static final double kSteerKP = 0.5;
+        public static final double kSteerKP = 0.03;
         public static final double kSteerKI = 0;
-        public static final double kSteerKD = 1000;
-        public static final double kSteerMaxVelocity = 2048;
-        public static final double kSteerMaxAcceleration = 10000;
+        public static final double kSteerKD = 0;
     }
 }

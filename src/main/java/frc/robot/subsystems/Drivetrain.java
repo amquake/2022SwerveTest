@@ -191,6 +191,10 @@ public class Drivetrain extends SubsystemBase {
 
     public void log(){
         SmartDashboard.putNumber("Gyro Degrees", getGyroYaw().getDegrees());
+        Pose2d pose = getPose();
+        SmartDashboard.putNumber("Robot Heading", pose.getRotation().getDegrees());
+        SmartDashboard.putNumber("Robot X", pose.getX());
+        SmartDashboard.putNumber("Robot Y", pose.getY());
         ChassisSpeeds chassisSpeeds = getChassisSpeeds();
         SmartDashboard.putNumber("Linear Velocity Feet", Units.metersToFeet(Math.hypot(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond)));
         SmartDashboard.putNumber("Angular Velocity Degrees", Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));

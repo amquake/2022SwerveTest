@@ -30,7 +30,7 @@ public class RobotContainer {
 
         configureDriverBinds();
 
-        autoOptions = new AutoOptions(drivetrain);
+        autoOptions = new AutoOptions(drivetrain, field2d);
 
         SmartDashboard.putData("Field", field2d);
         autoOptions.submit();

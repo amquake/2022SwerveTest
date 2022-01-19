@@ -42,8 +42,6 @@ public class CTREConfigs {
         swerveSteerConfig.slot0.kP = real ? Constants.Swerve.kSteerKP : Constants.Sim.kSteerKP;
         swerveSteerConfig.slot0.kI = real ? Constants.Swerve.kSteerKI : Constants.Sim.kSteerKI;
         swerveSteerConfig.slot0.kD = real ? Constants.Swerve.kSteerKD : Constants.Sim.kSteerKD;
-        swerveSteerConfig.motionCruiseVelocity = real ? Constants.Swerve.kSteerMaxVelocity : Constants.Sim.kSteerMaxVelocity;
-        swerveSteerConfig.motionAcceleration = real ? Constants.Swerve.kSteerMaxAcceleration : Constants.Sim.kSteerMaxAcceleration;
         swerveSteerConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(
             true,
             Constants.Swerve.kSteerContinuousCurrentLimit,

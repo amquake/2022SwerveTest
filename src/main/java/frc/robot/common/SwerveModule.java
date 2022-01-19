@@ -127,7 +127,6 @@ public class SwerveModule {
         double angle = Conversions.degreesToFalcon(Math.toDegrees(targetTotalAngle), Constants.Swerve.kSteerGearRatio);
         // perform onboard PID to steer the module to the target angle
         steerMotor.set(ControlMode.Position, angle);
-        //steerMotor.set(ControlMode.MotionMagic, angle);
 
         // convert our target meters per second to falcon velocity units
         SmartDashboard.putNumber("Module "+moduleConstants.moduleNum+" Target Velocity Feet", Units.metersToFeet(desiredState.speedMetersPerSecond));
