@@ -68,6 +68,7 @@ public class Robot extends TimedRobot {
         // coast motors in disabled mode so the robot can be moved
         if(disableTimer.hasElapsed(2)){
             disableTimer.stop();
+            disableTimer.reset();
 
             container.setAllBrake(false);
         }

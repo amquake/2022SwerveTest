@@ -68,7 +68,7 @@ public final class Constants {
         public static final SimpleMotorFeedforward kDriveFF = new SimpleMotorFeedforward(
             0.6, // Voltage to break static friction
             2.5, // Volts per meter per second
-            0.3 // Volts per meter per second squared
+            1 // Volts per meter per second squared
         );
 
         // Steer feed forward
@@ -86,6 +86,8 @@ public final class Constants {
         public static final double kSteerKP = 0.6;
         public static final double kSteerKI = 0;
         public static final double kSteerKD = 12;
+        public static final double kSteerMaxVelocity = 1000;
+        public static final double kSteerMaxAcceleration = 2000;
     }
 
     public static final class Auto {
@@ -133,6 +135,8 @@ public final class Constants {
 
         public static final double kSteerKP = 0.5;
         public static final double kSteerKI = 0;
-        public static final double kSteerKD = 25;
+        public static final double kSteerKD = 1000;
+        public static final double kSteerMaxVelocity = 2048;
+        public static final double kSteerMaxAcceleration = 10000;
     }
 }
