@@ -42,6 +42,9 @@ public class CTREConfigs {
         swerveSteerConfig.slot0.kP = real ? Constants.Swerve.kSteerKP : Constants.Sim.kSteerKP;
         swerveSteerConfig.slot0.kI = real ? Constants.Swerve.kSteerKI : Constants.Sim.kSteerKI;
         swerveSteerConfig.slot0.kD = real ? Constants.Swerve.kSteerKD : Constants.Sim.kSteerKD;
+        if(RobotBase.isSimulation()){
+            swerveSteerConfig.neutralDeadband = 0.001; // we need low output to accurately control steering
+        }
         swerveSteerConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(
             true,
             Constants.Swerve.kSteerContinuousCurrentLimit,

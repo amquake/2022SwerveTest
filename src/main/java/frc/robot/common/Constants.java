@@ -92,12 +92,12 @@ public final class Constants {
         // our maximum speeds/accelerations during auto
         public static final double kMaxLinearSpeed = Units.feetToMeters(8);
         public static final double kMaxLinearAcceleration = Units.feetToMeters(10);
-        public static final double kMaxAngularSpeed = Units.degreesToRadians(720);
+        public static final double kMaxAngularSpeed = Units.degreesToRadians(600);
         public static final double kMaxAngularAcceleration = Units.degreesToRadians(1080);
 
-        public static final double kPXController = 2; // pose PID control. 1 meter error in x = 1 meter per second x velocity 
-        public static final double kPYController = 2;
-        public static final double kPThetaController = 3;
+        public static final double kPXController = 3; // pose PID control. 1 meter error in x = 1 meter per second x velocity 
+        public static final double kPYController = 3;
+        public static final double kPThetaController = 4;
         // constraints for the theta controller on velocity (omega) and acceleration (omega squared)
         public static final TrapezoidProfile.Constraints kThetaControllerConstraints = new TrapezoidProfile.Constraints(
             kMaxAngularSpeed,
@@ -123,7 +123,7 @@ public final class Constants {
         public static final SimpleMotorFeedforward kSteerFF = new SimpleMotorFeedforward(
             0, // Voltage to break static friction
             0.08, // Volts per radian per second
-            0.003 // Volts per radian per second squared
+            0.001 // Volts per radian per second squared
         );
 
         // PID
@@ -131,8 +131,17 @@ public final class Constants {
         public static final double kDriveKI = 0;
         public static final double kDriveKD = 0;
 
-        public static final double kSteerKP = 0.03;
+        public static final double kSteerKP = 0.02;
         public static final double kSteerKI = 0;
         public static final double kSteerKD = 0;
+
+        /*
+        We have to use these constants to artificially bring simulation closer to reality.
+        For some reason, derivative error does not work on CTRE simulation, so
+        the feedforward values for steering that build the simulation model
+        have to be shrunk heavily to get snappy angle control. Note that the default
+        CTRE deadband (0.04) can create a large deadzone of several degrees in this
+        case because of the low input voltages.
+        */
     }
 }

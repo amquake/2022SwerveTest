@@ -128,15 +128,15 @@ public class SwerveModule {
         }
 
         // convert our target radians to falcon position units
-        double angle = Conversions.degreesToFalcon(Math.toDegrees(targetTotalAngle), Constants.Swerve.kSteerGearRatio);
+        double angleNative = targetTotalAngle / (2*Math.PI) * Constants.Swerve.kSteerGearRatio * 2048;
         // perform onboard PID to steer the module to the target angle
-        steerMotor.set(ControlMode.Position, angle);
+        steerMotor.set(ControlMode.Position, angleNative);
 
         // convert our target meters per second to falcon velocity units
-        double velocity = Conversions.MPSToFalcon(desiredState.speedMetersPerSecond, Constants.Swerve.kWheelCircumference, Constants.Swerve.kDriveGearRatio);
+        double velocityNative = Conversions.MPSToFalcon(desiredState.speedMetersPerSecond, Constants.Swerve.kWheelCircumference, Constants.Swerve.kDriveGearRatio);
         // perform onboard PID with inputted feedforward to drive the module to the target velocity
         driveMotor.set(
-            ControlMode.Velocity, velocity, // Native falcon counts per 100ms
+            ControlMode.Velocity, velocityNative, // Native falcon counts per 100ms
             DemandType.ArbitraryFeedForward, driveFF.calculate(desiredState.speedMetersPerSecond)/Constants.Swerve.kVoltageSaturation // feedforward voltage to percent output
         );
     }
@@ -184,7 +184,9 @@ public class SwerveModule {
         int num = moduleConstants.moduleNum;
         //SmartDashboard.putNumber("Module "+num+" Cancoder Degrees", getCancoderHeading().getDegrees());
         SmartDashboard.putNumber("Module "+num+" Steer Degrees", state.angle.plus(new Rotation2d()).getDegrees());
+        SmartDashboard.putNumber("Module "+num+" Steer Native", steerMotor.getSelectedSensorPosition());
         SmartDashboard.putNumber("Module "+num+" Steer Target Degrees", desiredState.angle.getDegrees());
+        SmartDashboard.putNumber("Module "+num+" Steer Target Native", steerMotor.getClosedLoopTarget());
         SmartDashboard.putNumber("Module "+num+" Steer Velocity", steerMotor.getSelectedSensorVelocity());
         SmartDashboard.putNumber("Module "+num+" Drive Velocity Feet", Units.metersToFeet(state.speedMetersPerSecond));
         SmartDashboard.putNumber("Module "+num+" Drive Velocity Target Feet", Units.metersToFeet(desiredState.speedMetersPerSecond));

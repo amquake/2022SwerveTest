@@ -4,9 +4,15 @@
 
 package frc.robot.commands;
 
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 
@@ -36,15 +42,19 @@ public class OCSwerveFollower extends CommandBase {
         double currentTime = timer.get();
         // The target state of the trajectory right now (the robot's pose and velocity)
         Trajectory.State targetState = trajectory.sample(currentTime);
+        Rotation2d targetRotation = targetState.poseMeters.getRotation();
+        // Check if we are using PathPlanner trajectories
+        if(trajectory instanceof PathPlannerTrajectory){
+            targetState = ((PathPlannerTrajectory)trajectory).sample(currentTime);
+            targetRotation = ((PathPlannerState)targetState).holonomicRotation;
+        }
 
-        // determine ChassisSpeeds from path state and positional feedback control from HolonomicDriveController
-        ChassisSpeeds targetChassisSpeeds = drivetrain.getPathController().calculate(
-            drivetrain.getPose(),
-            targetState,
-            targetState.poseMeters.getRotation()
-        );
-        // command robot to reach the target ChassisSpeeds
-        drivetrain.setChassisSpeeds(targetChassisSpeeds, false);
+        drivetrain.drive(targetState, targetRotation);
+
+        //Pose2d targetPose = targetState.poseMeters;
+        //SmartDashboard.putNumber("Target Heading", targetPose.getRotation().getDegrees());
+        //SmartDashboard.putNumber("Target X", targetPose.getX());
+        //SmartDashboard.putNumber("Target Y", targetPose.getY());
     }
     
     // Called once the command ends or is interrupted.

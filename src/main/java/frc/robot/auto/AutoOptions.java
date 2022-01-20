@@ -3,6 +3,8 @@ package frc.robot.auto;
 import java.util.Arrays;
 import java.util.List;
 
+import com.pathplanner.lib.PathPlanner;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -16,6 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.OCSwerveFollower;
+import frc.robot.common.Constants;
 import frc.robot.subsystems.Drivetrain;
 
 public class AutoOptions {
@@ -45,24 +48,26 @@ public class AutoOptions {
             )
         );
 
+        autoOptions.addOption("Mockup Normal",
+        autoFollowTrajectories(drivetrain,
+            TrajectoryGenerator.generateTrajectory(
+                new Pose2d(3, 3, Rotation2d.fromDegrees(0)),
+                Arrays.asList(
+                    new Translation2d(4, 3),
+                    new Translation2d(4, 4),
+                    new Translation2d(3, 4),
+                    new Translation2d(1, 2)
+                ),
+                new Pose2d(3, 3, Rotation2d.fromDegrees(90)),
+                Constants.Auto.kMediumSpeedConfig
+            )
+        ));
+
         // 2022 auto mockup
-        autoOptions.addOption("Mockup",
+        autoOptions.addOption("Mockup PathPlanner",
             autoFollowTrajectories(
                 drivetrain,
-                TrajectoryGenerator.generateTrajectory(
-                    Arrays.asList(
-                        new Pose2d(7.5, 2.9, Rotation2d.fromDegrees(70)),
-                        new Pose2d(7.3, 0.7, Rotation2d.fromDegrees(90))
-                    ),
-                    new TrajectoryConfig(Units.feetToMeters(6), Units.feetToMeters(8)).setReversed(true)
-                ),
-                TrajectoryGenerator.generateTrajectory(
-                    Arrays.asList(
-                        new Pose2d(7.3, 0.7, Rotation2d.fromDegrees(90)),
-                        new Pose2d(5.3, 1.85, Rotation2d.fromDegrees(180))
-                    ),
-                    new TrajectoryConfig(Units.feetToMeters(6), Units.feetToMeters(8))
-                )
+                PathPlanner.loadPath("5 ball mockup", 3, 4)
             )
         );
     }
@@ -71,6 +76,7 @@ public class AutoOptions {
         if(trajectories.length==0) return new InstantCommand(()->{}, drivetrain);
         Command sequence = new InstantCommand(()->{
             drivetrain.resetOdometry(trajectories[0].getInitialPose());
+            drivetrain.resetPathController();
         });
         for(Trajectory trajectory : trajectories){
             sequence = sequence.andThen(
@@ -91,7 +97,7 @@ public class AutoOptions {
         field2d.getObject("Trajectory").setTrajectory(trajectory);
     }
     public void submitTrajectory(Pose2d... poses){
-        field2d.getObject("Trajectory").setPoses(poses);;
+        field2d.getObject("Trajectory").setPoses(poses);
     }
 
     public void submit(){

@@ -13,6 +13,7 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -74,6 +75,7 @@ public class Drivetrain extends SubsystemBase {
 
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         pathController = new HolonomicDriveController(xController, yController, thetaController);
+        pathController.setEnabled(true);
     }
 
     @Override
@@ -103,6 +105,17 @@ public class Drivetrain extends SubsystemBase {
         else{
             targetChassisSpeeds = new ChassisSpeeds(vx,vy,omega);
         }
+        setChassisSpeeds(targetChassisSpeeds, false);
+    }
+
+    public void drive(Trajectory.State targetState, Rotation2d targetRotation){
+        // determine ChassisSpeeds from path state and positional feedback control from HolonomicDriveController
+        ChassisSpeeds targetChassisSpeeds = pathController.calculate(
+            getPose(),
+            targetState,
+            targetRotation
+        );
+        // command robot to reach the target ChassisSpeeds
         setChassisSpeeds(targetChassisSpeeds, false);
     }
 
