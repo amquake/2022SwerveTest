@@ -58,7 +58,7 @@ public class Drivetrain extends SubsystemBase {
         gyro = new WPI_PigeonIMU(Constants.Swerve.kPigeonID);
         gyro.configFactoryDefault(30);
         zeroGyro();
-        if(RobotBase.isReal()){
+        if(RobotBase.isSimulation()){
             fakeGyro = new ADXRS450_Gyro();
             gyroSim = new ADXRS450_GyroSim(fakeGyro);
         }
