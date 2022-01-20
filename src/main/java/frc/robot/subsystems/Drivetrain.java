@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.simulation.ADXRS450_GyroSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -42,8 +43,8 @@ public class Drivetrain extends SubsystemBase {
     private final HolonomicDriveController pathController; // Auto path-following controller
 
     // Simulation
-    private final ADXRS450_Gyro fakeGyro = new ADXRS450_Gyro(); // pigeon sim is broken :(
-    private final ADXRS450_GyroSim gyroSim;
+    private ADXRS450_Gyro fakeGyro; // pigeon sim is broken :(
+    private ADXRS450_GyroSim gyroSim;
     
     public Drivetrain() {
         CTREConfigs ctreConfigs = new CTREConfigs();
@@ -57,7 +58,10 @@ public class Drivetrain extends SubsystemBase {
         gyro = new WPI_PigeonIMU(Constants.Swerve.kPigeonID);
         gyro.configFactoryDefault(30);
         zeroGyro();
-        gyroSim = new ADXRS450_GyroSim(fakeGyro);
+        if(RobotBase.isReal()){
+            fakeGyro = new ADXRS450_Gyro();
+            gyroSim = new ADXRS450_GyroSim(fakeGyro);
+        }
 
         kinematics = new SwerveDriveKinematics(
             swerveMods[0].getModuleConstants().centerOffset,
