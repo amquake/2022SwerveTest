@@ -31,6 +31,7 @@ public class Drivetrain extends SubsystemBase {
 
     private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
+    private ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds();
 
      // path controller PID controllers
      // i.e 1 meter error in the x direction = 1 meter per second x velocity added
@@ -57,11 +58,11 @@ public class Drivetrain extends SubsystemBase {
 
         gyro = new WPI_PigeonIMU(Constants.Swerve.kPigeonID);
         gyro.configFactoryDefault(30);
-        zeroGyro();
         if(RobotBase.isSimulation()){
             fakeGyro = new ADXRS450_Gyro();
             gyroSim = new ADXRS450_GyroSim(fakeGyro);
         }
+        zeroGyro();
 
         kinematics = new SwerveDriveKinematics(
             swerveMods[0].getModuleConstants().centerOffset,
@@ -102,7 +103,7 @@ public class Drivetrain extends SubsystemBase {
         else{
             targetChassisSpeeds = new ChassisSpeeds(vx,vy,omega);
         }
-        setModuleStates(kinematics.toSwerveModuleStates(targetChassisSpeeds), false);
+        setChassisSpeeds(targetChassisSpeeds, false);
     }
 
     /**
@@ -122,6 +123,7 @@ public class Drivetrain extends SubsystemBase {
      */
     public void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds, boolean steerInPlace){
         setModuleStates(kinematics.toSwerveModuleStates(targetChassisSpeeds), steerInPlace);
+        this.targetChassisSpeeds = targetChassisSpeeds;
     }
 
     public void setBrakeOn(boolean is){
@@ -141,6 +143,11 @@ public class Drivetrain extends SubsystemBase {
     }
     public void resetOdometry(Pose2d pose){
         odometry.resetPosition(pose, getGyroYaw());
+    }
+    public void resetPathController(){
+        xController.reset();
+        yController.reset();
+        thetaController.reset(getHeading().getRadians(), getChassisSpeeds().omegaRadiansPerSecond);
     }
 
     public Pose2d getPose(){
@@ -194,14 +201,19 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void log(){
-        SmartDashboard.putNumber("Gyro Degrees", getGyroYaw().getDegrees());
+        SmartDashboard.putNumber("Raw Gyro Degrees", getGyroYaw().getDegrees());
         Pose2d pose = getPose();
         SmartDashboard.putNumber("Robot Heading", pose.getRotation().getDegrees());
         SmartDashboard.putNumber("Robot X", pose.getX());
         SmartDashboard.putNumber("Robot Y", pose.getY());
         ChassisSpeeds chassisSpeeds = getChassisSpeeds();
+        SmartDashboard.putNumber("Robot VX", chassisSpeeds.vxMetersPerSecond);
+        SmartDashboard.putNumber("Robot VY", chassisSpeeds.vyMetersPerSecond);
         SmartDashboard.putNumber("Linear Velocity Feet", Units.metersToFeet(Math.hypot(chassisSpeeds.vxMetersPerSecond, chassisSpeeds.vyMetersPerSecond)));
-        SmartDashboard.putNumber("Angular Velocity Degrees", Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));
+        SmartDashboard.putNumber("Robot Omega Degrees", Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));
+        SmartDashboard.putNumber("Robot Target Omega Degrees", Math.toDegrees(targetChassisSpeeds.omegaRadiansPerSecond));
+        SmartDashboard.putNumber("Robot Target VX", targetChassisSpeeds.vxMetersPerSecond);
+        SmartDashboard.putNumber("Robot Target VY", targetChassisSpeeds.vyMetersPerSecond);
         for(int i=0;i<4;i++){
             SwerveModule module = swerveMods[i];
             module.log();
