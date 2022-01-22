@@ -29,10 +29,10 @@ public final class Constants {
         public static final double kSteerGearRatio = 12.8; // 12.8:1
 
         public enum Module {
-            FL(1, 0, 1, 0, 0, kTrackLength/2, kTrackWidth/2), // Front left
-            FR(2, 2, 3, 1, 0, kTrackLength/2, -kTrackWidth/2),
-            BL(3, 4, 5, 2, 0, -kTrackLength/2, kTrackWidth/2),
-            BR(4, 6, 7, 3, 0, -kTrackLength/2, -kTrackWidth/2);
+            FL(1, 0, 1, 0, 263.7, kTrackLength/2, kTrackWidth/2), // Front left
+            FR(2, 2, 3, 1, 118.3, kTrackLength/2, -kTrackWidth/2),
+            BL(3, 4, 5, 2, 122.7, -kTrackLength/2, kTrackWidth/2),
+            BR(4, 6, 7, 3, 184.9, -kTrackLength/2, -kTrackWidth/2);
 
             public final int moduleNum;
             public final int driveMotorID;
