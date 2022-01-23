@@ -62,7 +62,7 @@ public class SwerveModule {
         driveMotor.enableVoltageCompensation(true);
         driveMotor.setNeutralMode(NeutralMode.Brake);
         driveMotor.setSelectedSensorPosition(0);
-        driveMotor.setInverted(Constants.Swerve.kInvertDrive);
+        driveMotor.setInverted(moduleConstants.invertDrive);
     }
     private void setupCancoder(CTREConfigs configs){
         steerEncoder.configAllSettings(configs.swerveCancoderConfig);
@@ -75,7 +75,7 @@ public class SwerveModule {
     private void setupSteerMotor(){
         steerMotor.enableVoltageCompensation(true);
         steerMotor.setNeutralMode(NeutralMode.Brake);
-        steerMotor.setInverted(Constants.Swerve.kInvertSteer);
+        steerMotor.setInverted(moduleConstants.invertSteer);
         resetToAbsolute();
     }
 
