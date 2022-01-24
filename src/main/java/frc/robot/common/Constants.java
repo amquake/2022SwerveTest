@@ -13,6 +13,8 @@ public final class Constants {
 
         // Inversions
         public static final boolean kInvertGyro = false;
+        public static final boolean kInvertDrive = false;
+        public static final boolean kInvertSteer = false;
         public static final boolean kInvertCancoder = false;
 
         // Physical properties
@@ -27,31 +29,23 @@ public final class Constants {
         public static final double kSteerGearRatio = 12.8; // 12.8:1
 
         public enum Module {
-            FL(1, 0, 1, 0, 0, false, false, kTrackLength/2, kTrackWidth/2), // Front left
-            FR(2, 2, 3, 1, 0, false, false, kTrackLength/2, -kTrackWidth/2),
-            BL(3, 4, 5, 2, 0, false, false, -kTrackLength/2, kTrackWidth/2),
-            BR(4, 6, 7, 3, 0, false, false, -kTrackLength/2, -kTrackWidth/2);
+            FL(1, 0, 1, 0, 0, kTrackLength/2, kTrackWidth/2), // Front left
+            FR(2, 2, 3, 1, 0, kTrackLength/2, -kTrackWidth/2),
+            BL(3, 4, 5, 2, 0, -kTrackLength/2, kTrackWidth/2),
+            BR(4, 6, 7, 3, 0, -kTrackLength/2, -kTrackWidth/2);
 
             public final int moduleNum;
             public final int driveMotorID;
             public final int steerMotorID;
             public final int cancoderID;
             public final double angleOffset;
-            public final boolean invertDrive;
-            public final boolean invertSteer;
             public final Translation2d centerOffset;
-            private Module(
-                int moduleNum, int driveMotorID, int steerMotorID, int cancoderID,
-                double angleOffset, boolean invertDrive, boolean invertSteer,
-                double xOffset, double yOffset
-                ){
+            private Module(int moduleNum, int driveMotorID, int steerMotorID, int cancoderID, double angleOffset, double xOffset, double yOffset){
                 this.moduleNum = moduleNum;
                 this.driveMotorID = driveMotorID;
                 this.steerMotorID = steerMotorID;
                 this.cancoderID = cancoderID;
                 this.angleOffset = angleOffset;
-                this.invertDrive = invertDrive;
-                this.invertSteer = invertSteer;
                 centerOffset = new Translation2d(xOffset, yOffset);
             }
         }
