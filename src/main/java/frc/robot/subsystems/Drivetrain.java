@@ -29,6 +29,7 @@ public class Drivetrain extends SubsystemBase {
 
     private final SwerveModule[] swerveMods;
     private final WPI_PigeonIMU gyro;
+    private final BasePigeonSimCollection gyroSim; // simulate pigeon
 
     private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
@@ -43,10 +44,6 @@ public class Drivetrain extends SubsystemBase {
         Constants.Auto.kThetaControllerConstraints
     );
     private final HolonomicDriveController pathController; // Auto path-following controller
-
-    // Simulation
-    private ADXRS450_Gyro fakeGyro; // pigeon sim is broken :(
-    private ADXRS450_GyroSim gyroSim;
     
     public Drivetrain() {
         CTREConfigs ctreConfigs = new CTREConfigs();
@@ -59,10 +56,7 @@ public class Drivetrain extends SubsystemBase {
 
         gyro = new WPI_PigeonIMU(Constants.Swerve.kPigeonID);
         gyro.configFactoryDefault(30);
-        if(RobotBase.isSimulation()){
-            fakeGyro = new ADXRS450_Gyro();
-            gyroSim = new ADXRS450_GyroSim(fakeGyro);
-        }
+        gyroSim = gyro.getSimCollection();
         zeroGyro();
 
         kinematics = new SwerveDriveKinematics(
@@ -147,12 +141,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void zeroGyro(){
-        if(Robot.isReal()){
-            gyro.setYaw(0);
-        }
-        else{
-            fakeGyro.reset();
-        }
+        gyro.setYaw(0);
     }
     public void resetOdometry(Pose2d pose){
         odometry.resetPosition(pose, getGyroYaw());
@@ -170,14 +159,9 @@ public class Drivetrain extends SubsystemBase {
         return odometry.getPoseMeters().getRotation();
     }
     public Rotation2d getGyroYaw(){
-        if(Robot.isReal()){
-            double[] ypr = new double[3];
-            gyro.getYawPitchRoll(ypr);
-            return Rotation2d.fromDegrees(ypr[0]);
-        }
-        else{
-            return fakeGyro.getRotation2d();
-        }
+        double[] ypr = new double[3];
+        gyro.getYawPitchRoll(ypr);
+        return Rotation2d.fromDegrees(ypr[0]);
     }
     
     /**
@@ -242,7 +226,6 @@ public class Drivetrain extends SubsystemBase {
 
         double chassisOmega = getChassisSpeeds().omegaRadiansPerSecond;
         chassisOmega = Math.toDegrees(chassisOmega);
-        gyroSim.setAngle(-getGyroYaw().getDegrees() - chassisOmega * 0.02);
-        gyroSim.setRate(-chassisOmega);
+        gyroSim.addHeading(chassisOmega*0.02);
     }
 }
