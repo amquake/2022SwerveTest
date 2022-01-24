@@ -120,9 +120,9 @@ public final class Constants {
         // Feedforward
         // Linear drive feed forward
         public static final SimpleMotorFeedforward kDriveFF = new SimpleMotorFeedforward(
-            0, // Voltage to break static friction
+            0, // Voltage to break static friction -- we cannot use kS with this method of simulation
             2.5, // Volts per meter per second
-            0.3 // Volts per meter per second squared
+            0.4 // Volts per meter per second squared -- lower kA will give snappier control
         );
 
         // Steer feed forward
