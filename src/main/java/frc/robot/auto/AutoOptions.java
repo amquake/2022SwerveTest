@@ -18,7 +18,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import frc.robot.commands.OCSwerveFollower;
-import frc.robot.common.Constants;
+import frc.robot.constants.AutoConstants;
 import frc.robot.subsystems.Drivetrain;
 
 public class AutoOptions {
@@ -59,7 +59,7 @@ public class AutoOptions {
                     new Translation2d(1, 2)
                 ),
                 new Pose2d(3, 3, Rotation2d.fromDegrees(90)),
-                Constants.Auto.kMediumSpeedConfig
+                AutoConstants.kMediumSpeedConfig
             )
         ));
 

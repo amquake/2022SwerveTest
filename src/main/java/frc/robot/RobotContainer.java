@@ -10,8 +10,8 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.auto.AutoOptions;
 import frc.robot.commands.FollowCircle;
-import frc.robot.common.Constants;
 import frc.robot.common.OCXboxController;
+import frc.robot.constants.AutoConstants;
 import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
@@ -96,7 +96,7 @@ public class RobotContainer {
         // we use an instant command like this to construct a new command every button press
         driver.bButton.whenPressed(
             new InstantCommand(()->{
-                new FollowCircle(drivetrain, 1.5, new Rotation2d(), Constants.Auto.kSlowSpeedConfig).schedule();
+                new FollowCircle(drivetrain, 1.5, new Rotation2d(), AutoConstants.kSlowSpeedConfig).schedule();
             })
         );
     }

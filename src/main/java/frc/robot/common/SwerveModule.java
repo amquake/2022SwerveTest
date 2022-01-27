@@ -19,13 +19,15 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.util.Conversions;
+import frc.robot.constants.SwerveConstants;
+import frc.robot.util.FalconUtil;
 
 public class SwerveModule {
 
-    private final Constants.Swerve.Module moduleConstants;
-    private double lastTargetTotalAngle = 0;
+    private final SwerveConstants.Module moduleConstants;
     private SwerveModuleState desiredState = new SwerveModuleState();
+    private double lastTargetTotalAngle = 0;
+    private boolean hasSetup = false;
 
     // Hardware
     private final WPI_TalonFX driveMotor;
@@ -33,20 +35,21 @@ public class SwerveModule {
     private final WPI_CANCoder steerEncoder;
 
     // Linear drive feed forward
-    public final SimpleMotorFeedforward driveFF = RobotBase.isReal() ? Constants.Swerve.kDriveFF : Constants.Sim.kDriveFF;
+    public final SimpleMotorFeedforward driveFF = SwerveConstants.kDriveFF;
     // Steer feed forward
-    public final SimpleMotorFeedforward steerFF = RobotBase.isReal() ? Constants.Swerve.kSteerFF : Constants.Sim.kSteerFF;
+    public final SimpleMotorFeedforward steerFF = SwerveConstants.kSteerFF;
 
-    public SwerveModule(Constants.Swerve.Module moduleConstants, CTREConfigs configs){
+    public SwerveModule(SwerveConstants.Module moduleConstants){
         this.moduleConstants = moduleConstants;
 
         driveMotor = new WPI_TalonFX(moduleConstants.driveMotorID);
         steerMotor = new WPI_TalonFX(moduleConstants.steerMotorID);
         steerEncoder = new WPI_CANCoder(moduleConstants.cancoderID);
 
-        setupDriveMotor(configs);
-        setupCancoder(configs);
-        setupSteerMotor(configs);
+        setupDriveMotor();
+        setupCancoder();
+        setupSteerMotor();
+        hasSetup = true;
 
         // Simulation
         driveMotorSim = driveMotor.getSimCollection();
@@ -54,29 +57,29 @@ public class SwerveModule {
         steerEncoderSim = steerEncoder.getSimCollection();
     }
 
-    private void setupDriveMotor(CTREConfigs configs){
-        driveMotor.configAllSettings(configs.swerveDriveConfig);
-        setupDriveMotor();
-    }
     private void setupDriveMotor(){
+        if(!hasSetup){
+            driveMotor.configAllSettings(SwerveConstants.driveConfig);
+        }
         driveMotor.enableVoltageCompensation(true);
         driveMotor.setNeutralMode(NeutralMode.Brake);
         driveMotor.setSelectedSensorPosition(0);
-        driveMotor.setInverted(Constants.Swerve.kInvertDrive);
+        driveMotor.setInverted(SwerveConstants.kInvertDrive);
+        if(RobotBase.isReal()) FalconUtil.configStatusFrames(driveMotor);
     }
-    private void setupCancoder(CTREConfigs configs){
-        steerEncoder.configAllSettings(configs.swerveCancoderConfig);
-        steerEncoder.configMagnetOffset(moduleConstants.angleOffset, 30);
-    }
-    private void setupSteerMotor(CTREConfigs configs){
-        steerMotor.configAllSettings(configs.swerveSteerConfig);
-        setupSteerMotor();
+    private void setupCancoder(){
+        steerEncoder.configAllSettings(SwerveConstants.cancoderConfig);
+        steerEncoder.configMagnetOffset(moduleConstants.angleOffset, 50);
     }
     private void setupSteerMotor(){
+        if(!hasSetup){
+            steerMotor.configAllSettings(SwerveConstants.steerConfig);
+        }
         steerMotor.enableVoltageCompensation(true);
         steerMotor.setNeutralMode(NeutralMode.Brake);
-        steerMotor.setInverted(Constants.Swerve.kInvertSteer);
+        steerMotor.setInverted(SwerveConstants.kInvertSteer);
         resetToAbsolute();
+        if(RobotBase.isReal()) FalconUtil.configStatusFrames(steerMotor);
     }
 
     public void periodic(){
@@ -94,7 +97,7 @@ public class SwerveModule {
      * We want to use the integrated encoder for control, but need the absolute cancoder for determining our startup rotation.
      */
     public void resetToAbsolute(){
-        double absolutePosition = Conversions.degreesToFalcon(getCancoderHeading().getDegrees(), Constants.Swerve.kSteerGearRatio);
+        double absolutePosition = FalconUtil.degreesToPosition(getCancoderHeading().getDegrees(), SwerveConstants.kSteerGearRatio);
         steerMotor.setSelectedSensorPosition(absolutePosition);
     }
 
@@ -128,16 +131,16 @@ public class SwerveModule {
         }
 
         // convert our target radians to falcon position units
-        double angleNative = targetTotalAngle / (2*Math.PI) * Constants.Swerve.kSteerGearRatio * 2048;
+        double angleNative = FalconUtil.radiansToPosition(targetTotalAngle, SwerveConstants.kSteerGearRatio);
         // perform onboard PID to steer the module to the target angle
         steerMotor.set(ControlMode.Position, angleNative);
 
         // convert our target meters per second to falcon velocity units
-        double velocityNative = Conversions.MPSToFalcon(desiredState.speedMetersPerSecond, Constants.Swerve.kWheelCircumference, Constants.Swerve.kDriveGearRatio);
+        double velocityNative = FalconUtil.metersToVelocity(desiredState.speedMetersPerSecond, SwerveConstants.kDriveGearRatio, SwerveConstants.kWheelCircumference);
         // perform onboard PID with inputted feedforward to drive the module to the target velocity
         driveMotor.set(
             ControlMode.Velocity, velocityNative, // Native falcon counts per 100ms
-            DemandType.ArbitraryFeedForward, driveFF.calculate(desiredState.speedMetersPerSecond)/Constants.Swerve.kVoltageSaturation // feedforward voltage to percent output
+            DemandType.ArbitraryFeedForward, driveFF.calculate(desiredState.speedMetersPerSecond)/SwerveConstants.kVoltageSaturation // feedforward voltage to percent output
         );
     }
 
@@ -154,7 +157,7 @@ public class SwerveModule {
      * NOT constrained to [-pi, pi]
      */
     public Rotation2d getIntegratedHeading(){
-        return Rotation2d.fromDegrees(Conversions.falconToDegrees(steerMotor.getSelectedSensorPosition(), Constants.Swerve.kSteerGearRatio));
+        return Rotation2d.fromDegrees(FalconUtil.positionToDegrees(steerMotor.getSelectedSensorPosition(), SwerveConstants.kSteerGearRatio));
     }
     /**
      * Module heading reported by steering cancoder
@@ -167,7 +170,7 @@ public class SwerveModule {
      * @return State describing module rotation(heading) and velocity in meters per second
      */
     public SwerveModuleState getState(){
-        double velocity = Conversions.falconToMPS(driveMotor.getSelectedSensorVelocity(), Constants.Swerve.kWheelCircumference, Constants.Swerve.kDriveGearRatio);
+        double velocity = FalconUtil.velocityToMeters(driveMotor.getSelectedSensorVelocity(), SwerveConstants.kDriveGearRatio, SwerveConstants.kWheelCircumference);
         Rotation2d angle = getIntegratedHeading();
         return new SwerveModuleState(velocity, angle);
     }
@@ -175,7 +178,7 @@ public class SwerveModule {
     /**
      * @return Constants about this module, like motor IDs, cancoder angle offset, and translation from center
      */
-    public Constants.Swerve.Module getModuleConstants(){
+    public SwerveConstants.Module getModuleConstants(){
         return moduleConstants;
     }
 
@@ -197,17 +200,17 @@ public class SwerveModule {
     private final TalonFXSimCollection driveMotorSim;
     private final FlywheelSim driveMotorSimModel = new FlywheelSim(
         LinearSystemId.identifyVelocitySystem(
-            driveFF.kv * Constants.Swerve.kWheelCircumference / (2*Math.PI),
-            driveFF.ka * Constants.Swerve.kWheelCircumference / (2*Math.PI)
+            driveFF.kv * SwerveConstants.kWheelCircumference / (2*Math.PI),
+            driveFF.ka * SwerveConstants.kWheelCircumference / (2*Math.PI)
         ),
         DCMotor.getFalcon500(1),
-        Constants.Swerve.kDriveGearRatio
+        SwerveConstants.kDriveGearRatio
     );
     private final TalonFXSimCollection steerMotorSim;
     private final FlywheelSim steerMotorSimModel = new FlywheelSim(
         LinearSystemId.identifyVelocitySystem(steerFF.kv, steerFF.ka),
         DCMotor.getFalcon500(1),
-        Constants.Swerve.kSteerGearRatio
+        SwerveConstants.kSteerGearRatio
     );
     private final CANCoderSimCollection steerEncoderSim;
 
@@ -218,14 +221,14 @@ public class SwerveModule {
         steerMotorSimModel.update(0.02);
 
         //SmartDashboard.putNumber("Drive Sim Model Amps", driveMotorSimModel.getCurrentDrawAmps());
-        //SmartDashboard.putNumber("Drive Sim Model Velocity Feet", Units.metersToFeet(driveMotorSimModel.getAngularVelocityRPM() * Constants.Swerve.kWheelCircumference / 60));
-        double driveMotorVelocityNative = driveMotorSimModel.getAngularVelocityRPM() * 2048 / 600 * Constants.Swerve.kDriveGearRatio;
+        //SmartDashboard.putNumber("Drive Sim Model Velocity Feet", Units.metersToFeet(driveMotorSimModel.getAngularVelocityRPM() * SwerveConstants.kWheelCircumference / 60));
+        double driveMotorVelocityNative = FalconUtil.rotationsToVelocity(driveMotorSimModel.getAngularVelocityRPM()/60, SwerveConstants.kDriveGearRatio);
         double driveMotorPositionDeltaNative = driveMotorVelocityNative*10*0.02;
         driveMotorSim.setIntegratedSensorVelocity((int)driveMotorVelocityNative);
         driveMotorSim.addIntegratedSensorPosition((int)(driveMotorPositionDeltaNative));
 
         //SmartDashboard.putNumber("Steer Sim Model Velocity", steerMotorSimModel.getAngularVelocityRPM());
-        double steerMotorVelocityNative = steerMotorSimModel.getAngularVelocityRPM() * 2048 / 600 * Constants.Swerve.kSteerGearRatio;
+        double steerMotorVelocityNative = FalconUtil.rotationsToVelocity(steerMotorSimModel.getAngularVelocityRPM()/60, SwerveConstants.kDriveGearRatio);
         double steerMotorPositionDeltaNative = steerMotorVelocityNative*10*0.02;
         steerMotorSim.setIntegratedSensorVelocity((int)steerMotorVelocityNative);
         steerMotorSim.addIntegratedSensorPosition((int)(steerMotorPositionDeltaNative));
