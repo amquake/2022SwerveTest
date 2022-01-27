@@ -1,7 +1,6 @@
 package frc.robot.auto;
 
 import java.util.Arrays;
-import java.util.List;
 
 import com.pathplanner.lib.PathPlanner;
 
@@ -12,7 +11,6 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -23,12 +21,9 @@ import frc.robot.subsystems.Drivetrain;
 
 public class AutoOptions {
     
-    private final Field2d field2d;
     private SendableChooser<Command> autoOptions = new SendableChooser<>();
 
-    public AutoOptions(Drivetrain drivetrain, Field2d field2d){
-
-        this.field2d = field2d;
+    public AutoOptions(Drivetrain drivetrain){
 
         autoOptions.setDefaultOption("Nothing",
             new InstantCommand(()->drivetrain.drive(0, 0, 0, false), drivetrain)
@@ -67,37 +62,44 @@ public class AutoOptions {
         autoOptions.addOption("Mockup PathPlanner",
             autoFollowTrajectories(
                 drivetrain,
-                PathPlanner.loadPath("5 ball mockup", 3, 4)
+                AutoConstants.kMediumSpeedConfig,
+                "5 ball mockup"
             )
         );
     }
 
+    /**
+     * @param trajectories Any number of trajectories to perform in sequence
+     * @return A command suitable for following a sequence of trajectories in autonomous.
+     * The robot pose is reset to the start of the trajectory and {@link OCSwerveFollower} is used to follow it.
+     */
     private Command autoFollowTrajectories(Drivetrain drivetrain, Trajectory... trajectories){
         if(trajectories.length==0) return new InstantCommand(()->{}, drivetrain);
-        Command sequence = new InstantCommand(()->{
-            drivetrain.resetOdometry(trajectories[0].getInitialPose());
-            drivetrain.resetPathController();
-        });
+        Trajectory combinedTrajectory = new Trajectory();
         for(Trajectory trajectory : trajectories){
-            sequence = sequence.andThen(
-                new OCSwerveFollower(drivetrain, trajectory)
-                    .beforeStarting(()->submitTrajectory(trajectory))
-            );
+            combinedTrajectory = combinedTrajectory.concatenate(trajectory);
         }
-        return sequence;
+        Pose2d initial = combinedTrajectory.getInitialPose();
+        return new OCSwerveFollower(drivetrain, combinedTrajectory).beforeStarting(()->drivetrain.resetOdometry(initial));
+    }
+    /**
+     * @param config The config for this trajectory defining max velocity and acceleration
+     * @param storedPathNames The names of the PathPlanner paths saved to this project for use in this trajectory
+     * @return A command suitable for following a sequence of trajectories in autonomous.
+     * The robot pose is reset to the start of the trajectory and {@link OCSwerveFollower} is used to follow it.
+     */
+    private Command autoFollowTrajectories(Drivetrain drivetrain, TrajectoryConfig config, String... storedPathNames){
+        Trajectory[] trajectories = new Trajectory[storedPathNames.length];
+        for(int i=0;i<storedPathNames.length;i++){
+            trajectories[i] = PathPlanner.loadPath(storedPathNames[i], config.getMaxVelocity(), config.getMaxAcceleration(), config.isReversed());
+        }
+        return autoFollowTrajectories(drivetrain, trajectories);
     }
 
 
     // Network Tables
     public Command getSelected(){
         return autoOptions.getSelected();
-    }
-
-    public void submitTrajectory(Trajectory trajectory){
-        field2d.getObject("Trajectory").setTrajectory(trajectory);
-    }
-    public void submitTrajectory(Pose2d... poses){
-        field2d.getObject("Trajectory").setPoses(poses);
     }
 
     public void submit(){

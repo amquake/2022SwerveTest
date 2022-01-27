@@ -23,16 +23,13 @@ public class RobotContainer {
 
     private final AutoOptions autoOptions;
 
-    private Field2d field2d = new Field2d();
-
     public RobotContainer(){
         drivetrain = new Drivetrain();
 
         configureDriverBinds();
 
-        autoOptions = new AutoOptions(drivetrain, field2d);
+        autoOptions = new AutoOptions(drivetrain);
 
-        SmartDashboard.putData("Field", field2d);
         autoOptions.submit();
     }
 
@@ -103,8 +100,5 @@ public class RobotContainer {
 
     public void log(){
         drivetrain.log();
-        // display our robot (and individual modules) pose on the field
-        field2d.setRobotPose(drivetrain.getPose());
-        field2d.getObject("Swerve Modules").setPoses(drivetrain.getModulePoses());
     }
 }

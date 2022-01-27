@@ -31,6 +31,8 @@ public class OCSwerveFollower extends CommandBase {
     public void initialize() {
         timer.reset();
         timer.start();
+        drivetrain.resetPathController();
+        drivetrain.logTrajectory(trajectory);
     }
     
     // Called every time the scheduler runs while the command is scheduled.

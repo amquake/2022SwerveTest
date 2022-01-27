@@ -15,6 +15,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.common.SwerveModule;
@@ -40,6 +41,8 @@ public class Drivetrain extends SubsystemBase {
         AutoConstants.kThetaControllerConstraints
     );
     private final HolonomicDriveController pathController = new HolonomicDriveController(xController, yController, thetaController);
+
+    private final Field2d field2d = new Field2d();
     
     public Drivetrain() {
         swerveMods = new SwerveModule[]{
@@ -61,6 +64,7 @@ public class Drivetrain extends SubsystemBase {
             swerveMods[3].getModuleConstants().centerOffset
         );
         odometry = new SwerveDriveOdometry(kinematics, getGyroYaw());
+        SmartDashboard.putData("Field", field2d);
 
         thetaController.enableContinuousInput(-Math.PI, Math.PI);
         pathController.setEnabled(true); // disable for feedforward-only auto
@@ -68,10 +72,14 @@ public class Drivetrain extends SubsystemBase {
 
     @Override
     public void periodic() {
-        odometry.update(getGyroYaw(), getModuleStates());
         for(int i=0;i<4;i++){
             swerveMods[i].periodic();
         }
+
+        // display our robot (and individual modules) pose on the field
+        odometry.update(getGyroYaw(), getModuleStates());
+        field2d.setRobotPose(getPose());
+        field2d.getObject("Swerve Modules").setPoses(getModulePoses());
     }
 
     /**
@@ -208,6 +216,9 @@ public class Drivetrain extends SubsystemBase {
             SwerveModule module = swerveMods[i];
             module.log();
         }
+    }
+    public void logTrajectory(Trajectory trajectory){
+        field2d.getObject("Trajectory").setTrajectory(trajectory);
     }
 
     @Override
