@@ -89,8 +89,8 @@ public class SwerveConstants {
         :
         new SimpleMotorFeedforward( // sim
             0, // Voltage to break static friction
-            0.08, // Volts per radian per second
-            0.001 // Volts per radian per second squared
+            0.15, // Volts per radian per second
+            0.002 // Volts per radian per second squared
         );
 
     // PID
@@ -98,7 +98,7 @@ public class SwerveConstants {
     public static final double kDriveKI = 0;
     public static final double kDriveKD = 0;
 
-    public static final double kSteerKP = isReal ? 0.6 : 0.03;
+    public static final double kSteerKP = isReal ? 0.6 : 0.1;
     public static final double kSteerKI = isReal ? 0 : 0;
     public static final double kSteerKD = isReal ? 12 : 0;
 
