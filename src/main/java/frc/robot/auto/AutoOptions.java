@@ -21,6 +21,7 @@ import frc.robot.subsystems.Drivetrain;
 
 public class AutoOptions {
     
+    // list of choosable commands that decides what is run in auto
     private SendableChooser<Command> autoOptions = new SendableChooser<>();
 
     public AutoOptions(Drivetrain drivetrain){
@@ -38,25 +39,27 @@ public class AutoOptions {
                         new Pose2d(4, 2, Rotation2d.fromDegrees(-90)),
                         new Pose2d(2, 2, Rotation2d.fromDegrees(90))
                     ),
-                    new TrajectoryConfig(Units.feetToMeters(6), Units.feetToMeters(8))
+                    AutoConstants.kMediumSpeedConfig
                 )
             )
         );
 
-        autoOptions.addOption("Mockup Normal",
-        autoFollowTrajectories(drivetrain,
-            TrajectoryGenerator.generateTrajectory(
-                new Pose2d(3, 3, Rotation2d.fromDegrees(0)),
-                Arrays.asList(
-                    new Translation2d(4, 3),
-                    new Translation2d(4, 4),
-                    new Translation2d(3, 4),
-                    new Translation2d(1, 2)
-                ),
-                new Pose2d(3, 3, Rotation2d.fromDegrees(90)),
-                AutoConstants.kMediumSpeedConfig
+        autoOptions.addOption("Test Normal",
+            autoFollowTrajectories(
+                drivetrain,
+                TrajectoryGenerator.generateTrajectory(
+                    new Pose2d(3, 3, Rotation2d.fromDegrees(0)),
+                    Arrays.asList(
+                        new Translation2d(4, 3),
+                        new Translation2d(4, 4),
+                        new Translation2d(3, 4),
+                        new Translation2d(1, 2)
+                    ),
+                    new Pose2d(3, 3, Rotation2d.fromDegrees(90)),
+                    AutoConstants.kMediumSpeedConfig
+                )
             )
-        ));
+        );
 
         // 2022 auto mockup
         autoOptions.addOption("Mockup PathPlanner",

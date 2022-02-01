@@ -13,6 +13,11 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Drivetrain;
 
+/**
+ * Custom implementation of
+ * {@link edu.wpi.first.wpilibj2.command.SwerveControllerCommand SwerveControllerCommand}
+ * to simplify construction, allow PathPlanner paths, and enable custom logging
+ */
 public class OCSwerveFollower extends CommandBase {
 
     private final Drivetrain drivetrain;
@@ -31,8 +36,8 @@ public class OCSwerveFollower extends CommandBase {
     public void initialize() {
         timer.reset();
         timer.start();
-        drivetrain.resetPathController();
-        drivetrain.logTrajectory(trajectory);
+        drivetrain.resetPathController(); // reset theta setpoint between different trajectories
+        drivetrain.logTrajectory(trajectory); // display the trajectory on field2d
     }
     
     // Called every time the scheduler runs while the command is scheduled.

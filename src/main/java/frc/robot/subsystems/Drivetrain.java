@@ -32,18 +32,21 @@ public class Drivetrain extends SubsystemBase {
     private ChassisSpeeds targetChassisSpeeds = new ChassisSpeeds();
 
     // path controller and its dimension-specific controllers
-    // i.e 1 meter error in the x direction = 1 meter per second x velocity added
+    // i.e 1 meter error in the x direction = kP meters per second x velocity added
     private final PIDController xController = new PIDController(AutoConstants.kPXController, 0, 0);
     private final PIDController yController = new PIDController(AutoConstants.kPYController, 0, 0);
+    // our auto rotation targets are profiled to obey velocity and acceleration constraints
     private final ProfiledPIDController thetaController = new ProfiledPIDController(
         AutoConstants.kPThetaController, 0, 0,
         AutoConstants.kThetaControllerConstraints
     );
+    // our auto controller which follows trajectories and adjusts target chassis speeds to reach a desired pose
     private final HolonomicDriveController pathController = new HolonomicDriveController(xController, yController, thetaController);
 
     private final Field2d field2d = new Field2d();
     
     public Drivetrain() {
+        // construct our modules in order with their specific constants
         swerveMods = new SwerveModule[]{
             new SwerveModule(SwerveConstants.Module.FL),
             new SwerveModule(SwerveConstants.Module.FR),
@@ -84,14 +87,14 @@ public class Drivetrain extends SubsystemBase {
     /**
      * Basic teleop drive control; percentages representing vx, vy, and omega
      * are converted to chassis speeds for the robot to follow
-     * @param xPercent vx (forward)
-     * @param yPercent vy (strafe)
+     * @param vxPercent vx (forward)
+     * @param vyPercent vy (strafe)
      * @param omegaPercent omega (rotation CCW+)
      * @param fieldRelative If is field-relative control
      */
-    public void drive(double xPercent, double yPercent, double omegaPercent, boolean fieldRelative){
-        double vx = xPercent * SwerveConstants.kMaxLinearSpeed;
-        double vy = yPercent * SwerveConstants.kMaxLinearSpeed;
+    public void drive(double vxPercent, double vyPercent, double omegaPercent, boolean fieldRelative){
+        double vx = vxPercent * SwerveConstants.kMaxLinearSpeed;
+        double vy = vyPercent * SwerveConstants.kMaxLinearSpeed;
         double omega = omegaPercent * SwerveConstants.kMaxAngularSpeed;
         ChassisSpeeds targetChassisSpeeds;
         if(fieldRelative){

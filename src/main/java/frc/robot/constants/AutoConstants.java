@@ -7,12 +7,12 @@ import edu.wpi.first.math.util.Units;
 public class AutoConstants {
     
     // our maximum speeds/accelerations during auto
-    public static final double kMaxLinearSpeed = Units.feetToMeters(8);
-    public static final double kMaxLinearAcceleration = Units.feetToMeters(10);
+    public static final double kMaxLinearSpeed = Units.feetToMeters(10);
+    public static final double kMaxLinearAcceleration = Units.feetToMeters(12);
     public static final double kMaxAngularSpeed = Units.degreesToRadians(600);
     public static final double kMaxAngularAcceleration = Units.degreesToRadians(1080);
 
-    public static final double kPXController = 3; // pose PID control. 1 meter error in x = 1 meter per second x velocity 
+    public static final double kPXController = 3; // pose PID control. 1 meter error in x = kP meters per second in target x velocity 
     public static final double kPYController = 3;
     public static final double kPThetaController = 4;
     // constraints for the theta controller on velocity (omega) and acceleration (alpha)

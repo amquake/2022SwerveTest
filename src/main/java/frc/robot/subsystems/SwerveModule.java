@@ -62,7 +62,6 @@ public class SwerveModule {
             driveMotor.configAllSettings(SwerveConstants.driveConfig);
         }
         driveMotor.enableVoltageCompensation(true);
-        driveMotor.setNeutralMode(NeutralMode.Brake);
         driveMotor.setSelectedSensorPosition(0);
         driveMotor.setInverted(SwerveConstants.kInvertDrive);
         if(RobotBase.isReal()) FalconUtil.configStatusFrames(driveMotor);
@@ -76,7 +75,6 @@ public class SwerveModule {
             steerMotor.configAllSettings(SwerveConstants.steerConfig);
         }
         steerMotor.enableVoltageCompensation(true);
-        steerMotor.setNeutralMode(NeutralMode.Brake);
         steerMotor.setInverted(SwerveConstants.kInvertSteer);
         resetToAbsolute();
         if(RobotBase.isReal()) FalconUtil.configStatusFrames(steerMotor);
@@ -97,7 +95,7 @@ public class SwerveModule {
      * We want to use the integrated encoder for control, but need the absolute cancoder for determining our startup rotation.
      */
     public void resetToAbsolute(){
-        double absolutePosition = FalconUtil.degreesToPosition(getCancoderHeading().getDegrees(), SwerveConstants.kSteerGearRatio);
+        double absolutePosition = FalconUtil.degreesToPosition(getAbsoluteHeading().getDegrees(), SwerveConstants.kSteerGearRatio);
         steerMotor.setSelectedSensorPosition(absolutePosition);
     }
 
@@ -136,7 +134,11 @@ public class SwerveModule {
         steerMotor.set(ControlMode.Position, angleNative);
 
         // convert our target meters per second to falcon velocity units
-        double velocityNative = FalconUtil.metersToVelocity(desiredState.speedMetersPerSecond, SwerveConstants.kDriveGearRatio, SwerveConstants.kWheelCircumference);
+        double velocityNative = FalconUtil.metersToVelocity(
+            desiredState.speedMetersPerSecond,
+            SwerveConstants.kDriveGearRatio,
+            SwerveConstants.kWheelCircumference
+        );
         // perform onboard PID with inputted feedforward to drive the module to the target velocity
         driveMotor.set(
             ControlMode.Velocity, velocityNative, // Native falcon counts per 100ms
@@ -162,7 +164,7 @@ public class SwerveModule {
     /**
      * Module heading reported by steering cancoder
      */
-    public Rotation2d getCancoderHeading(){
+    public Rotation2d getAbsoluteHeading(){
         return Rotation2d.fromDegrees(steerEncoder.getAbsolutePosition());
     }
 
