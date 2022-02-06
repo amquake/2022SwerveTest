@@ -23,8 +23,8 @@ public class SwerveConstants {
     public static final boolean kInvertSteer = false;
     public static final boolean kInvertCancoder = false;
     // Physical properties
-    public static final double kTrackWidth = Units.inchesToMeters(23);
-    public static final double kTrackLength = Units.inchesToMeters(23);
+    public static final double kTrackWidth = Units.inchesToMeters(18.5);
+    public static final double kTrackLength = Units.inchesToMeters(18.5);
     
     public static final double kMaxLinearSpeed = Units.feetToMeters(14);
     public static final double kMaxAngularSpeed = Units.degreesToRadians(720);
@@ -71,7 +71,7 @@ public class SwerveConstants {
         new SimpleMotorFeedforward( // real
             0.6, // Voltage to break static friction
             2.5, // Volts per meter per second
-            1 // Volts per meter per second squared
+            0.4 // Volts per meter per second squared
         )
         :
         new SimpleMotorFeedforward( // sim
