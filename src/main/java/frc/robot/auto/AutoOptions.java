@@ -3,6 +3,8 @@ package frc.robot.auto;
 import java.util.Arrays;
 
 import com.pathplanner.lib.PathPlanner;
+import com.pathplanner.lib.PathPlannerTrajectory;
+import com.pathplanner.lib.PathPlannerTrajectory.PathPlannerState;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -79,10 +81,17 @@ public class AutoOptions {
     private Command autoFollowTrajectories(Drivetrain drivetrain, Trajectory... trajectories){
         if(trajectories.length==0) return new InstantCommand(()->{}, drivetrain);
         Trajectory combinedTrajectory = new Trajectory();
-        for(Trajectory trajectory : trajectories){
+        for(Trajectory trajectory : trajectories){        
             combinedTrajectory = combinedTrajectory.concatenate(trajectory);
         }
-        Pose2d initial = combinedTrajectory.getInitialPose();
+
+        final Pose2d initial = (trajectories[0] instanceof PathPlannerTrajectory) ?
+            new Pose2d(
+                trajectories[0].getInitialPose().getTranslation(),
+                ((PathPlannerState)((PathPlannerTrajectory)trajectories[0]).sample(0)).holonomicRotation)
+            :
+            trajectories[0].getInitialPose();
+            
         return new OCSwerveFollower(drivetrain, combinedTrajectory).beforeStarting(()->drivetrain.resetOdometry(initial));
     }
     /**
