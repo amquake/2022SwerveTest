@@ -169,11 +169,25 @@ public class SwerveModule {
     }
 
     /**
-     * @return State describing module rotation(heading) and velocity in meters per second
+     * @return State describing integrated module rotation and velocity in meters per second
      */
-    public SwerveModuleState getState(){
-        double velocity = FalconUtil.velocityToMeters(driveMotor.getSelectedSensorVelocity(), SwerveConstants.kDriveGearRatio, SwerveConstants.kWheelCircumference);
+    public SwerveModuleState getIntegratedState(){
+        double velocity = FalconUtil.velocityToMeters(
+            driveMotor.getSelectedSensorVelocity(),
+            SwerveConstants.kDriveGearRatio, SwerveConstants.kWheelCircumference
+        );
         Rotation2d angle = getIntegratedHeading();
+        return new SwerveModuleState(velocity, angle);
+    }
+    /**
+     * @return State describing absolute module rotation and velocity in meters per second
+     */
+    public SwerveModuleState getAbsoluteState(){
+        double velocity = FalconUtil.velocityToMeters(
+            driveMotor.getSelectedSensorVelocity(),
+            SwerveConstants.kDriveGearRatio, SwerveConstants.kWheelCircumference
+        );
+        Rotation2d angle = getAbsoluteHeading();
         return new SwerveModuleState(velocity, angle);
     }
 
@@ -185,7 +199,7 @@ public class SwerveModule {
     }
 
     public void log(){
-        SwerveModuleState state = getState();
+        SwerveModuleState state = getAbsoluteState();
         int num = moduleConstants.moduleNum;
         //SmartDashboard.putNumber("Module "+num+" Cancoder Degrees", getCancoderHeading().getDegrees());
         SmartDashboard.putNumber("Module "+num+" Steer Degrees", state.angle.plus(new Rotation2d()).getDegrees());

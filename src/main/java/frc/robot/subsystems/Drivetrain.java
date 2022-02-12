@@ -173,10 +173,10 @@ public class Drivetrain extends SubsystemBase {
      */
     public SwerveModuleState[] getModuleStates(){
         return new SwerveModuleState[]{
-            swerveMods[0].getState(),
-            swerveMods[1].getState(),
-            swerveMods[2].getState(),
-            swerveMods[3].getState()
+            swerveMods[0].getAbsoluteState(),
+            swerveMods[1].getAbsoluteState(),
+            swerveMods[2].getAbsoluteState(),
+            swerveMods[3].getAbsoluteState()
         };
     }
     /**
