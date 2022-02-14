@@ -244,13 +244,13 @@ public class SwerveModule {
         driveMotorSim.addIntegratedSensorPosition((int)(driveMotorPositionDeltaNative));
 
         //SmartDashboard.putNumber("Steer Sim Model Velocity", steerMotorSimModel.getAngularVelocityRPM());
-        double steerMotorVelocityNative = FalconUtil.rotationsToVelocity(steerMotorSimModel.getAngularVelocityRPM()/60, SwerveConstants.kDriveGearRatio);
+        double steerMotorVelocityNative = FalconUtil.rotationsToVelocity(steerMotorSimModel.getAngularVelocityRPM()/60, SwerveConstants.kSteerGearRatio);
         double steerMotorPositionDeltaNative = steerMotorVelocityNative*10*0.02;
         steerMotorSim.setIntegratedSensorVelocity((int)steerMotorVelocityNative);
         steerMotorSim.addIntegratedSensorPosition((int)(steerMotorPositionDeltaNative));
         
-        steerEncoderSim.setVelocity((int)steerMotorVelocityNative);
-        steerEncoderSim.addPosition((int)(steerMotorPositionDeltaNative));
+        steerEncoderSim.setVelocity((int)(FalconUtil.rotationsToVelocity(steerMotorSimModel.getAngularVelocityRPM()/60, 1)*2));
+        steerEncoderSim.setRawPosition((int)(getIntegratedHeading().getDegrees()/360.0*4096));
 
         driveMotorSim.setBusVoltage(RobotController.getBatteryVoltage());
         steerMotorSim.setBusVoltage(RobotController.getBatteryVoltage());

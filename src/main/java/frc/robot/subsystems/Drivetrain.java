@@ -186,7 +186,7 @@ public class Drivetrain extends SubsystemBase {
         Pose2d[] modulePoses = new Pose2d[4];
         for(int i=0;i<4;i++){
             SwerveModule module = swerveMods[i];
-            modulePoses[i] = getPose().transformBy(new Transform2d(module.getModuleConstants().centerOffset, module.getIntegratedHeading()));
+            modulePoses[i] = getPose().transformBy(new Transform2d(module.getModuleConstants().centerOffset, module.getAbsoluteHeading()));
         }
         return modulePoses;
     }
