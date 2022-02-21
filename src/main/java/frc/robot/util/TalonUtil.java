@@ -6,12 +6,12 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 /**
  * Utility methods for using the Phoenix library with Falcon 500s
  */
-public class FalconUtil {
+public class TalonUtil {
 
     /**
      * Configures the status frame periods of given motors
      */
-    public static void configStatusFrames(WPI_TalonFX... motors){
+    public static void configStatusNormal(WPI_TalonFX... motors){
         for(WPI_TalonFX motor : motors){
             motor.setStatusFramePeriod(StatusFrameEnhanced.Status_1_General, 20, 50);
         }
