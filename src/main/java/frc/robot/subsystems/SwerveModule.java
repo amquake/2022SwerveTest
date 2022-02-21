@@ -62,7 +62,7 @@ public class SwerveModule {
         driveMotor.enableVoltageCompensation(true);
         driveMotor.setSelectedSensorPosition(0);
         driveMotor.setInverted(SwerveConstants.kInvertDrive);
-        TalonUtil.configStatusFrames(driveMotor);
+        TalonUtil.configStatusNormal(driveMotor);
     }
     private void setupCancoder(boolean init){
         steerEncoder.configAllSettings(SwerveConstants.cancoderConfig);
@@ -75,7 +75,7 @@ public class SwerveModule {
         steerMotor.enableVoltageCompensation(true);
         steerMotor.setInverted(SwerveConstants.kInvertSteer);
         resetToAbsolute();
-        TalonUtil.configStatusFrames(steerMotor);
+        TalonUtil.configStatusNormal(steerMotor);
     }
 
     public void periodic(){
