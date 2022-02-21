@@ -14,19 +14,17 @@ import frc.robot.subsystems.Drivetrain;
 
 public class RobotContainer {
     
-    private final Drivetrain drivetrain;
+    private final Drivetrain drivetrain = new Drivetrain();
 
     private final OCXboxController driver = new OCXboxController(0);
     private boolean isFieldRelative = true;
 
-    private final AutoOptions autoOptions;
+    private final AutoOptions autoOptions = new AutoOptions(drivetrain);
 
     public RobotContainer(){
-        drivetrain = new Drivetrain();
 
         configureDriverBinds();
 
-        autoOptions = new AutoOptions(drivetrain);
         autoOptions.submit();
     }
 

@@ -203,16 +203,16 @@ public class Drivetrain extends SubsystemBase {
 
     public void log(){
         Pose2d pose = getPose();
-        SmartDashboard.putNumber("Robot Heading", pose.getRotation().getDegrees());
-        SmartDashboard.putNumber("Robot X", pose.getX());
-        SmartDashboard.putNumber("Robot Y", pose.getY());
+        SmartDashboard.putNumber("Drive/Heading", pose.getRotation().getDegrees());
+        SmartDashboard.putNumber("Drive/X", pose.getX());
+        SmartDashboard.putNumber("Drive/Y", pose.getY());
         ChassisSpeeds chassisSpeeds = getChassisSpeeds();
-        SmartDashboard.putNumber("Robot VX", chassisSpeeds.vxMetersPerSecond);
-        SmartDashboard.putNumber("Robot VY", chassisSpeeds.vyMetersPerSecond);
-        SmartDashboard.putNumber("Robot Omega Degrees", Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));
-        SmartDashboard.putNumber("Robot Target VX", targetChassisSpeeds.vxMetersPerSecond);
-        SmartDashboard.putNumber("Robot Target VY", targetChassisSpeeds.vyMetersPerSecond);
-        SmartDashboard.putNumber("Robot Target Omega Degrees", Math.toDegrees(targetChassisSpeeds.omegaRadiansPerSecond));
+        SmartDashboard.putNumber("Drive/VX", chassisSpeeds.vxMetersPerSecond);
+        SmartDashboard.putNumber("Drive/VY", chassisSpeeds.vyMetersPerSecond);
+        SmartDashboard.putNumber("Drive/Omega Degrees", Units.radiansToDegrees(chassisSpeeds.omegaRadiansPerSecond));
+        SmartDashboard.putNumber("Drive/Target VX", targetChassisSpeeds.vxMetersPerSecond);
+        SmartDashboard.putNumber("Drive/Target VY", targetChassisSpeeds.vyMetersPerSecond);
+        SmartDashboard.putNumber("Drive/Target Omega Degrees", Math.toDegrees(targetChassisSpeeds.omegaRadiansPerSecond));
         
         for(int i=0;i<4;i++){
             SwerveModule module = swerveMods[i];
