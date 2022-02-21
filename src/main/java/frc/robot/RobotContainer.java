@@ -9,17 +9,22 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import frc.robot.auto.AutoOptions;
 import frc.robot.commands.FollowCircle;
 import frc.robot.common.OCXboxController;
+import frc.robot.common.ShotMap;
 import frc.robot.constants.AutoConstants;
 import frc.robot.subsystems.Drivetrain;
+import frc.robot.subsystems.Shooter;
+import frc.robot.subsystems.Shooter.State;
 
 public class RobotContainer {
     
     private final Drivetrain drivetrain = new Drivetrain();
+    private final Shooter shooter = new Shooter();
 
     private final OCXboxController driver = new OCXboxController(0);
     private boolean isFieldRelative = true;
 
     private final AutoOptions autoOptions = new AutoOptions(drivetrain);
+    private final ShotMap shotMap = new ShotMap(shooter);
 
     public RobotContainer(){
 
@@ -93,9 +98,20 @@ public class RobotContainer {
                 new FollowCircle(drivetrain, 1.5, new Rotation2d(), AutoConstants.kSlowSpeedConfig).schedule();
             })
         );
+
+        driver.leftTriggerButton.whileHeld(()->{
+            shooter.setState(shotMap.find(driver.getLeftTriggerAxis()*200));
+        }, shooter)
+        .whenReleased(()->shooter.stop(), shooter);
+
+        driver.rightTriggerButton.whileHeld(()->{
+            shooter.setRPM(driver.getRightTriggerAxis()*4000);
+        }, shooter)
+        .whenReleased(()->shooter.stop(), shooter);
     }
 
     public void log(){
         drivetrain.log();
+        shooter.log();
     }
 }
