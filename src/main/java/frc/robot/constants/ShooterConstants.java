@@ -33,8 +33,8 @@ public final class ShooterConstants {
     // Feedforward
     public static final SimpleMotorFeedforward kFF = new SimpleMotorFeedforward(
         0, // Voltage to break static friction
-        0.025, // Volts per radian per second
-        0.005 // Volts per radian per second squared
+        0.02, // Volts per radian per second
+        0.0025 // Volts per radian per second squared
     );
 
     // PID

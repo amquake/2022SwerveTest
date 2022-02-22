@@ -73,7 +73,7 @@ public class Shooter extends SubsystemBase {
         else{
             rightMotor.set(
                 ControlMode.Velocity, nativeVelocity,
-                DemandType.ArbitraryFeedForward, kFF.calculate(radiansPerSecond)
+                DemandType.ArbitraryFeedForward, kFF.calculate(radiansPerSecond)/kVoltageSaturation
             );
         }
     }
@@ -111,7 +111,7 @@ public class Shooter extends SubsystemBase {
     private final TalonFXSimCollection flywheelMotorSim = new TalonFXSimCollection(rightMotor);
     private final FlywheelSim flywheelSim = new FlywheelSim(
         LinearSystemId.identifyVelocitySystem(kFF.kv, kFF.ka),
-        DCMotor.getFalcon500(2),
+        DCMotor.getFalcon500(1),
         1,
         VecBuilder.fill(Units.rotationsPerMinuteToRadiansPerSecond(5))
     );
