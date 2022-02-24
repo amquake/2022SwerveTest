@@ -6,10 +6,11 @@ import edu.wpi.first.wpilibj.Timer;
 
 public class LinearServo extends Servo{
     
-    double m_speed;
-    double m_length;
-    double setPos;
-    double curPos;
+    private final double m_speed;
+    private final double m_length;
+    private double setPos;
+    private double curPos;
+    private double lastTime = Timer.getFPGATimestamp();
     
     /**
     * Parameters for L16-R Actuonix Linear Actuators
@@ -34,16 +35,19 @@ public class LinearServo extends Servo{
         setPos = MathUtil.clamp(setpoint, 0, m_length);
         setSpeed((setPos/m_length *2)-1);
     }
-    double lastTime = 0;
+    
     /**
     * Run this method in any periodic function to update the position estimation of your servo
     */
     public void updateCurPos(){
-        double dt = Timer.getFPGATimestamp() - lastTime;
-        if (curPos > setPos + m_speed *dt){
-            curPos -= m_speed *dt;
-        } else if(curPos < setPos - m_speed *dt){
-            curPos += m_speed *dt;
+        double current = Timer.getFPGATimestamp();
+        double dt = current - lastTime;
+        lastTime = current;
+
+        if (curPos > setPos + m_speed*dt){
+            curPos -= m_speed*dt;
+        } else if(curPos < setPos - m_speed*dt){
+            curPos += m_speed*dt;
         }else{
             curPos = setPos;
         }
