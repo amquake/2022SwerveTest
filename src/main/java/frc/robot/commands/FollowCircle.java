@@ -76,7 +76,7 @@ public class FollowCircle extends CommandBase {
         );
 
         // command robot to reach the target ChassisSpeeds
-        drivetrain.setChassisSpeeds(targetChassisSpeeds, false);
+        drivetrain.setChassisSpeeds(targetChassisSpeeds, false, false);
     }
     
     // Called once the command ends or is interrupted.

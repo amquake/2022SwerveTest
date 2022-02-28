@@ -6,9 +6,11 @@ import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.PigeonIMUConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+import com.ctre.phoenix.sensors.SensorVelocityMeasPeriod;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.RobotBase;
 
@@ -67,40 +69,30 @@ public class SwerveConstants {
 
     // Feedforward
     // Linear drive feed forward
-    public static final SimpleMotorFeedforward kDriveFF = isReal ?
-        new SimpleMotorFeedforward( // real
-            0.6, // Voltage to break static friction
-            2.5, // Volts per meter per second
-            0.4 // Volts per meter per second squared
-        )
-        :
-        new SimpleMotorFeedforward( // sim
-            0, // Voltage to break static friction -- we do not use kS with this method of simulation
-            2.5, // Volts per meter per second
-            0.4 // Volts per meter per second squared -- lower kA will give snappier control
-        );
+    public static final SimpleMotorFeedforward kDriveFF = new SimpleMotorFeedforward(
+        0.6, // Voltage to break static friction
+        2.25, // Volts per meter per second
+        0.17 // Volts per meter per second squared
+    );
     // Steer feed forward
-    public static final SimpleMotorFeedforward kSteerFF = isReal ?
-        new SimpleMotorFeedforward( // real
-            0, // Voltage to break static friction
-            0.15, // Volts per radian per second
-            0.04 // Volts per radian per second squared
-        )
-        :
-        new SimpleMotorFeedforward( // sim
-            0, // Voltage to break static friction
-            0.15, // Volts per radian per second
-            0.002 // Volts per radian per second squared
-        );
+    public static final SimpleMotorFeedforward kSteerFF = new SimpleMotorFeedforward(
+        0.55, // Voltage to break static friction
+        0.2, // Volts per radian per second
+        0.005 // Volts per radian per second squared
+    );
 
     // PID
     public static final double kDriveKP = 0.1;
     public static final double kDriveKI = 0;
     public static final double kDriveKD = 0;
 
-    public static final double kSteerKP = isReal ? 0.6 : 0.1;
+    public static final double kSteerKP = isReal ? 2 : 0.25;
     public static final double kSteerKI = isReal ? 0 : 0;
-    public static final double kSteerKD = isReal ? 12 : 0;
+    public static final double kSteerKD = isReal ? 0 : 0;
+    public static final TrapezoidProfile.Constraints kSteerConstraints = new TrapezoidProfile.Constraints(
+        Units.rotationsToRadians(5),
+        Units.rotationsToRadians(7)
+    );
 
 
     // The configurations applied to swerve CTRE devices
@@ -108,12 +100,9 @@ public class SwerveConstants {
     public static final TalonFXConfiguration steerConfig = new TalonFXConfiguration();
     public static final CANCoderConfiguration cancoderConfig = new CANCoderConfiguration();
     public static final PigeonIMUConfiguration pigeonConfig = new PigeonIMUConfiguration();
+    public static final int kCANTimeout = 100;
 
     static {
-        driveConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
-        driveConfig.slot0.kP = kDriveKP;
-        driveConfig.slot0.kI = kDriveKI;
-        driveConfig.slot0.kD = kDriveKD;
         driveConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(
             true,
             kDriveContinuousCurrentLimit,
@@ -122,14 +111,13 @@ public class SwerveConstants {
         );
         driveConfig.voltageCompSaturation = kVoltageSaturation;
         driveConfig.voltageMeasurementFilter = kVoltageMeasurementSamples;
+        driveConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
+        driveConfig.slot0.kP = kDriveKP;
+        driveConfig.slot0.kI = kDriveKI;
+        driveConfig.slot0.kD = kDriveKD;
+        driveConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_20Ms;
+        driveConfig.velocityMeasurementWindow = 32;
 
-        steerConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
-        steerConfig.slot0.kP = kSteerKP;
-        steerConfig.slot0.kI = kSteerKI;
-        steerConfig.slot0.kD = kSteerKD;
-        if(RobotBase.isSimulation()){
-            steerConfig.neutralDeadband = 0.001; // we need low output to accurately control steering
-        }
         steerConfig.supplyCurrLimit = new SupplyCurrentLimitConfiguration(
             true,
             kSteerContinuousCurrentLimit,
@@ -138,9 +126,20 @@ public class SwerveConstants {
         );
         steerConfig.voltageCompSaturation = kVoltageSaturation;
         steerConfig.voltageMeasurementFilter = kVoltageMeasurementSamples;
+        if(RobotBase.isSimulation()){
+            steerConfig.neutralDeadband = 0.001; // we need low output to accurately control steering
+        }
+        steerConfig.initializationStrategy = SensorInitializationStrategy.BootToZero;
+        steerConfig.slot0.kP = kSteerKP;
+        steerConfig.slot0.kI = kSteerKI;
+        steerConfig.slot0.kD = kSteerKD;
+        steerConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_20Ms;
+        steerConfig.velocityMeasurementWindow = 32;
 
         cancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Signed_PlusMinus180;
         cancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
         cancoderConfig.sensorDirection = kInvertCancoder;
+        cancoderConfig.velocityMeasurementPeriod = SensorVelocityMeasPeriod.Period_20Ms;
+        cancoderConfig.velocityMeasurementWindow = 32;
     }
 }

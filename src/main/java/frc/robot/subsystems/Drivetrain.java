@@ -85,7 +85,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     /**
-     * Basic teleop drive control; percentages representing vx, vy, and omega
+     * Basic open-loop teleop drive control; percentages representing vx, vy, and omega
      * are converted to chassis speeds for the robot to follow
      * @param vxPercent vx (forward)
      * @param vyPercent vy (strafe)
@@ -103,9 +103,14 @@ public class Drivetrain extends SubsystemBase {
         else{
             targetChassisSpeeds = new ChassisSpeeds(vx,vy,omega);
         }
-        setChassisSpeeds(targetChassisSpeeds, false);
+        setChassisSpeeds(targetChassisSpeeds, true, false);
     }
 
+    /**
+     * Closed-loop drive control intended for autonomous.
+     * @param targetState Contains target translation and field-component velocities
+     * @param targetRotation Target holonomic rotation separate from path
+     */
     public void drive(Trajectory.State targetState, Rotation2d targetRotation){
         // determine ChassisSpeeds from path state and positional feedback control from HolonomicDriveController
         ChassisSpeeds targetChassisSpeeds = pathController.calculate(
@@ -114,7 +119,7 @@ public class Drivetrain extends SubsystemBase {
             targetRotation
         );
         // command robot to reach the target ChassisSpeeds
-        setChassisSpeeds(targetChassisSpeeds, false);
+        setChassisSpeeds(targetChassisSpeeds, false, false);
     }
 
     /**
@@ -122,18 +127,23 @@ public class Drivetrain extends SubsystemBase {
      * Velocites above maximum speed will be downscaled (preserving ratios between modules)
      * @param steerInPlace If modules should steer to target angle when target velocity is 0
      */
-    public void setModuleStates(SwerveModuleState[] desiredStates, boolean steerInPlace){
+    public void setModuleStates(SwerveModuleState[] desiredStates, boolean openLoop, boolean steerInPlace){
         SwerveDriveKinematics.desaturateWheelSpeeds(desiredStates, SwerveConstants.kMaxLinearSpeed);
         for(int i=0;i<4;i++){
-            swerveMods[i].setDesiredState(desiredStates[i], steerInPlace);
+            swerveMods[i].setDesiredState(desiredStates[i], openLoop, steerInPlace);
+        }
+    }
+    public void setModuleSteerVelocityRadians(double velocityRadians){
+        for(int i=0;i<4;i++){
+            swerveMods[i].setSteerVelocityRadians(velocityRadians);;
         }
     }
     /**
      * Uses kinematics to convert ChassisSpeeds to module states.
      * @see {@link #setModuleStates(SwerveModuleState[], boolean)}
      */
-    public void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds, boolean steerInPlace){
-        setModuleStates(kinematics.toSwerveModuleStates(targetChassisSpeeds), steerInPlace);
+    public void setChassisSpeeds(ChassisSpeeds targetChassisSpeeds, boolean openLoop, boolean steerInPlace){
+        setModuleStates(kinematics.toSwerveModuleStates(targetChassisSpeeds), openLoop, steerInPlace);
         this.targetChassisSpeeds = targetChassisSpeeds;
     }
 

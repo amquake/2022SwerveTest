@@ -13,7 +13,6 @@ import frc.robot.common.ShotMap;
 import frc.robot.constants.AutoConstants;
 import frc.robot.subsystems.Drivetrain;
 import frc.robot.subsystems.Shooter;
-import frc.robot.subsystems.Shooter.State;
 
 public class RobotContainer {
     
@@ -88,7 +87,7 @@ public class RobotContainer {
                 new SwerveModuleState(0, Rotation2d.fromDegrees(-45)),
                 new SwerveModuleState(0, Rotation2d.fromDegrees(45))
             };
-            drivetrain.setModuleStates(states, true);
+            drivetrain.setModuleStates(states, true, true);
         }, drivetrain);
 
         // follow a 1.5 meter diameter circle in front of the robot
@@ -98,6 +97,8 @@ public class RobotContainer {
                 new FollowCircle(drivetrain, 1.5, new Rotation2d(), AutoConstants.kSlowSpeedConfig).schedule();
             })
         );
+
+        driver.yButton.whileHeld(()->drivetrain.setModuleSteerVelocityRadians(3), drivetrain);
 
         driver.leftTriggerButton.whileHeld(()->{
             shooter.setState(shotMap.find(driver.getLeftTriggerAxis()*200));
